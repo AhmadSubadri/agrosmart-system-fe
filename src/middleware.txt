@@ -1,0 +1,38 @@
+import { NextResponse } from "next/server";
+
+export async function middleware(request) {
+    const { pathname, search } = request.nextUrl;
+
+    // Tangkap semua permintaan yang diawali dengan `/api`
+    if (pathname.startsWith("/api")) {
+        const baseURL = "http://127.0.0.1:8000";
+        const targetUrl = `${baseURL}${pathname.replace('/api', '')}${search}`;
+
+        console.log("Middleware Proxying to:", targetUrl); // Debugging
+
+        try {
+            const response = await fetch(targetUrl, {
+                method: request.method,
+                headers: {
+                    ...Object.fromEntries(request.headers.entries()), // Salin header dari request asli
+                    host: undefined, // Hapus header `host` jika perlu
+                },
+                body: request.method !== "GET" && request.method !== "HEAD" ? request.body : undefined,
+            });
+
+            // Teruskan respons dari server eksternal
+            const headers = new Headers(response.headers);
+            headers.set("Access-Control-Allow-Origin", "*"); // Untuk debugging lintas asal
+
+            return new NextResponse(await response.text(), {
+                headers,
+                status: response.status,
+            });
+        } catch (error) {
+            console.error("Error proxying request:", error);
+            return new NextResponse("Error proxying request", { status: 500 });
+        }
+    }
+
+    return NextResponse.next();
+}
