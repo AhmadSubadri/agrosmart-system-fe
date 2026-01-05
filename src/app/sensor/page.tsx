@@ -65,8 +65,6 @@ export default function Page() {
 
   return (
     <section>
-      <Header title="Sensor" />
-
       <div className="p-6">
         <Site onSiteChange={(id) => setSiteId(id)} />
 

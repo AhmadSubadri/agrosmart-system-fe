@@ -76,8 +76,6 @@ export default function TanamanPage() {
 
   return (
     <section>
-      <Header title="Plant" />
-
       <div className="p-6">
         <Site onSiteChange={() => {}} />
 

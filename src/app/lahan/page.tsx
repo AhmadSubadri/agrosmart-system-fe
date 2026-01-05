@@ -74,8 +74,6 @@ export default function LahanPage() {
 
   return (
     <section>
-      <Header title="Lahan" />
-
       <div className="p-6">
         {/* TABLE CARD */}
         <div className="mt-4 bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
