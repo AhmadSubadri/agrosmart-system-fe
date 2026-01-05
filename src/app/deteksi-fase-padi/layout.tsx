@@ -1,17 +1,10 @@
-// src/app/layout.tsx
 import { Metadata } from "next";
-import RootLayout from "../RootLayout"; // Import your client layout
-import Header from "../Components/header";
-
-// Export metadata from here
+import RootLayout from "../RootLayout";
 export const metadata: Metadata = {
-  title: "Deteksi Fase Padi",
-  description: "AgroSmartSystem Dashboard",
+  title: "Deteksi Fase Padi | Kawal Tani Agro Smart System",
+  description: "Agro Smart System Dashboard",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <RootLayout>
-    <Header title={'Deteksi Fase Padi'}/>
-      {children}
-    </RootLayout>; // Use the client component here
+  return <RootLayout>{children}</RootLayout>;
 }

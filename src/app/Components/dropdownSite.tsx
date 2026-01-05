@@ -1,35 +1,36 @@
-'use client'
+"use client";
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 
 interface DropdownSiteProps {
-  onSiteChange: (siteId: string) => void
+  onSiteChange: (id: string) => void;
+  className?: string;
 }
 
 interface SiteOption {
-  site_id: string
-  site_name: string
+  site_id: string;
+  site_name: string;
 }
 
 const DropdownSite: React.FC<DropdownSiteProps> = ({ onSiteChange }) => {
-  const [sites, setSites] = useState<SiteOption[]>([])
-  const [selectedSite, setSelectedSite] = useState<string>("")
-  const [loading, setLoading] = useState<boolean>(true)
-  const [hasInitialized, setHasInitialized] = useState<boolean>(false)
+  const [sites, setSites] = useState<SiteOption[]>([]);
+  const [selectedSite, setSelectedSite] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [hasInitialized, setHasInitialized] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchSites = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
-  
+
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/site`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            Accept: 'application/json',
+            Accept: "application/json",
           },
         });
-  
+
         const result = await res.json();
         if (Array.isArray(result.data) && result.data.length > 0) {
           setSites(result.data);
@@ -40,24 +41,22 @@ const DropdownSite: React.FC<DropdownSiteProps> = ({ onSiteChange }) => {
           setSelectedSite(defaultSite);
           onSiteChange(defaultSite);
         }
-
       } catch (err) {
         console.error("Error fetching site list:", err);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchSites();
   }, [onSiteChange]);
-  
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSite = e.target.value
-    setSelectedSite(newSite)
-    localStorage.setItem("selectedSiteId", newSite); // ✅ Simpan ke localStorage
-    onSiteChange(newSite)
-  }
+    const newSite = e.target.value;
+    setSelectedSite(newSite);
+    localStorage.setItem("selectedSiteId", newSite);
+    onSiteChange(newSite);
+  };
 
   return (
     <div className="mb-6">
@@ -82,7 +81,7 @@ const DropdownSite: React.FC<DropdownSiteProps> = ({ onSiteChange }) => {
         )}
       </select>
     </div>
-  )
-}
+  );
+};
 
-export default DropdownSite
+export default DropdownSite;

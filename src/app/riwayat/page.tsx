@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Header from "../Components/header";
 import Site from "../Components/dropdownSite";
 import Select from "react-select";
 import dynamic from "next/dynamic";
@@ -31,17 +32,22 @@ function transformChartData(rawData: any[]) {
 
 export default function RiwayatPage() {
   const router = useRouter();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   const [siteId, setSiteId] = useState<string | null>(null);
-  const [areaOptions, setAreaOptions] = useState<{ value: string; label: string }[]>([]);
-  const [selectedSensors, setSelectedSensors] = useState<{ value: string; label: string }[]>([]);
+  const [areaOptions, setAreaOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [selectedSensors, setSelectedSensors] = useState<
+    { value: string; label: string }[]
+  >([]);
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [chartData, setChartData] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loadingAreas, setLoadingAreas] = useState<boolean>(false);
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-  // ✅ Auth check + ambil siteId dari localStorage
+  // AUTH CHECK
   useEffect(() => {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
@@ -50,13 +56,11 @@ export default function RiwayatPage() {
       router.push("/login");
     } else {
       const storedSiteId = localStorage.getItem("selectedSiteId");
-      if (storedSiteId) {
-        setSiteId(storedSiteId);
-      }
+      if (storedSiteId) setSiteId(storedSiteId);
     }
   }, [router]);
 
-  // ✅ Ambil daftar area setelah siteId tersedia
+  // FETCH AREA OPTIONS
   useEffect(() => {
     if (!siteId) return;
 
@@ -70,16 +74,10 @@ export default function RiwayatPage() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("📦 Area options:", data);
-        if (data.areas) {
-          setAreaOptions(data.areas);
-        } else {
-          setAreaOptions([]);
-        }
+        setAreaOptions(data.areas || []);
         setLoadingAreas(false);
       })
-      .catch((err) => {
-        console.error("Failed to fetch area options:", err);
+      .catch(() => {
         setAreaOptions([]);
         setLoadingAreas(false);
       });
@@ -87,7 +85,7 @@ export default function RiwayatPage() {
 
   const fetchHistoryData = async () => {
     if (selectedSensors.length === 0 || !startDate || !endDate) {
-      setErrorMessage("Please select all required fields.");
+      setErrorMessage("Semua filter wajib diisi.");
       return;
     }
 
@@ -115,13 +113,11 @@ export default function RiwayatPage() {
         setErrorMessage(rawData.message);
         setChartData(null);
       } else {
-        const transformedData = transformChartData(rawData);
-        setChartData(transformedData);
+        setChartData(transformChartData(rawData));
         setErrorMessage(null);
       }
-    } catch (err) {
-      console.error("Error fetching history data:", err);
-      setErrorMessage("An error occurred while fetching data.");
+    } catch {
+      setErrorMessage("Terjadi kesalahan saat mengambil data.");
       setChartData(null);
     }
   };
@@ -132,72 +128,82 @@ export default function RiwayatPage() {
   };
 
   return (
-  <div className="p-6">
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full gap-2 mb-4">
-      <Site onSiteChange={(id) => setSiteId(id)} />
-    </div>
+    <section>
+      <Header title="Riwayat Data" />
 
-    <form onSubmit={handleSubmit} className="w-full max-w-xl">
-      <div className="mb-4">
-        <span className="block text-sm font-semibold mb-2">Area:</span>
-        {loadingAreas ? (
-          <div className="text-gray-500">Loading area options...</div>
-        ) : (
-          <Select
-            isMulti
-            options={areaOptions}
-            value={selectedSensors}
-            onChange={(selectedOptions) => setSelectedSensors(selectedOptions as any)}
-            placeholder="Pilih area"
-            className="w-full"
-          />
+      <div className="p-6 space-y-6">
+        {/* FILTER CARD */}
+        <div className="bg-white rounded-xl shadow border border-gray-200 p-4">
+          <div className="mb-4">
+            <Site onSiteChange={(id) => setSiteId(id)} />
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold mb-2">Area</label>
+              {loadingAreas ? (
+                <div className="text-gray-500">Loading area options...</div>
+              ) : (
+                <Select
+                  isMulti
+                  options={areaOptions}
+                  value={selectedSensors}
+                  onChange={(val) => setSelectedSensors(val as any)}
+                  placeholder="Pilih area"
+                />
+              )}
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex w-full">
+                <span className="inline-flex items-center px-3 text-sm font-semibold bg-gray-100 border border-r-0 rounded-l-md">
+                  Dari
+                </span>
+                <input
+                  type="date"
+                  className="border rounded-r-md w-full p-2 text-sm"
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+
+              <div className="flex w-full">
+                <span className="inline-flex items-center px-3 text-sm font-semibold bg-gray-100 border border-r-0 rounded-l-md">
+                  Ke
+                </span>
+                <input
+                  type="date"
+                  className="border rounded-r-md w-full p-2 text-sm"
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="bg-primary text-white font-semibold text-sm rounded-md px-4 py-2"
+            >
+              Tampilkan Data
+            </button>
+          </form>
+        </div>
+
+        {/* ERROR */}
+        {errorMessage && (
+          <div className="bg-red-100 text-red-700 p-3 rounded-md">
+            {errorMessage}
+          </div>
+        )}
+
+        {/* CHART CARD */}
+        {chartData && (
+          <div className="bg-white rounded-xl shadow border border-gray-200 p-4">
+            <Chart
+              data={chartData}
+              sensorName={selectedSensors.map((s) => s.label).join(", ")}
+            />
+          </div>
         )}
       </div>
-
-      {/* RESPONSIF TANGGAL */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
-        <div className="flex w-full md:w-auto">
-          <span className="inline-flex items-center px-3 text-sm text-black font-semibold bg-primary border border-e-0 border-primary rounded-s-md">
-            Dari:
-          </span>
-          <input
-            type="date"
-            name="start_date"
-            className="rounded-none rounded-e-lg bg-white border border-primary text-black block w-full text-sm p-2.5 focus:ring-transparent"
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-        </div>
-
-        <span className="font-bold text-xl md:text-2xl text-center">-</span>
-
-        <div className="flex w-full md:w-auto">
-          <span className="inline-flex items-center px-3 text-sm text-black font-semibold bg-primary border border-e-0 border-primary rounded-s-md">
-            Ke:
-          </span>
-          <input
-            type="date"
-            name="end_date"
-            className="rounded-none rounded-e-lg bg-white border border-primary text-black block w-full text-sm p-2.5 focus:ring-transparent"
-            onChange={(e) => setEndDate(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <button
-        type="submit"
-        className="bg-primary text-black font-semibold text-sm rounded-md p-2 w-full md:w-32"
-      >
-        Submit
-      </button>
-    </form>
-
-    {errorMessage && (
-      <div className="bg-red-500 text-white p-3 rounded-md mt-4">{errorMessage}</div>
-    )}
-
-    {chartData && (
-      <Chart data={chartData} sensorName={selectedSensors.map((sensor) => sensor.label).join(", ")} />
-    )}
-  </div>
-);
+    </section>
+  );
 }

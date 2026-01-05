@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import EditSite from '../Components/editData';
-import Site from "../Components/dropdownSite";
-import Edit from '../assets/Edit.svg';
+import Header from "../Components/header";
+import EditSite from "../Components/editData";
 
 interface SiteData {
   site_id: string;
@@ -16,10 +15,15 @@ interface SiteData {
   site_sts: number;
 }
 
-export default function TanamanPage() {
-  const [SiteData, setSiteData] = useState<SiteData[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+export default function LahanPage() {
+  const [siteData, setSiteData] = useState<SiteData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // PAGINATION
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 8;
+
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -27,7 +31,6 @@ export default function TanamanPage() {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
 
-    // 🔒 Redirect jika belum login
     if (!token || !user) {
       router.push("/login");
       return;
@@ -39,7 +42,6 @@ export default function TanamanPage() {
 
       try {
         const response = await fetch(`${API_URL}/api/site`, {
-        method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
@@ -47,14 +49,14 @@ export default function TanamanPage() {
         });
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch data: ${response.statusText}`);
+          throw new Error("Gagal mengambil data lahan");
         }
 
         const result = await response.json();
-        setSiteData(result.data|| []);
-      } catch (error) {
-        console.error("Error fetching plant data:", error);
-        setError((error as Error).message);
+        setSiteData(result.data || []);
+        setCurrentPage(1);
+      } catch (err) {
+        setError((err as Error).message);
       } finally {
         setIsLoading(false);
       }
@@ -63,54 +65,138 @@ export default function TanamanPage() {
     fetchData();
   }, [router]);
 
+  // PAGINATION LOGIC
+  const totalPages = Math.ceil(siteData.length / rowsPerPage);
+  const paginatedData = siteData.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
   return (
-  <div className="p-6">
-    <div className="w-full overflow-x-auto">
-      <table className="min-w-[800px] w-full text-sm md:text-base text-left text-gray-500">
-        <thead className="text-black uppercase bg-abu2 border-2 border-abu3">
-          <tr>
-            <th className="px-4 py-2 border border-abu3 whitespace-nowrap">ID Lahan</th>
-            <th className="px-4 py-2 border border-abu3 whitespace-nowrap">Nama Lahan</th>
-            <th className="px-4 py-2 border border-abu3 whitespace-nowrap">Lokasi</th>
-            <th className="px-4 py-2 border border-abu3 whitespace-nowrap">Latitude</th>
-            <th className="px-4 py-2 border border-abu3 whitespace-nowrap">Longitude</th>
-            <th className="px-4 py-2 border border-abu3 whitespace-nowrap">Elevasi</th>
-            <th className="px-4 py-2 border border-abu3 whitespace-nowrap">Status</th>
-            <th className="px-4 py-2 border border-abu3 whitespace-nowrap">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {isLoading ? (
-            <tr>
-              <td colSpan={8} className="px-4 py-4 text-center">Loading...</td>
-            </tr>
-          ) : error ? (
-            <tr>
-              <td colSpan={8} className="px-4 py-4 text-center text-red-500">{error}</td>
-            </tr>
-          ) : SiteData.length > 0 ? (
-            SiteData.map((site, index) => (
-              <tr key={index} className="bg-white border-2 border-abu3 text-black">
-                <td className="px-4 py-3 border border-abu3 whitespace-nowrap">{site.site_id}</td>
-                <td className="px-4 py-3 border border-abu3 whitespace-nowrap">{site.site_name}</td>
-                <td className="px-4 py-3 border border-abu3 whitespace-nowrap">{site.site_address}</td>
-                <td className="px-4 py-3 border border-abu3 whitespace-nowrap">{site.site_lat}</td>
-                <td className="px-4 py-3 border border-abu3 whitespace-nowrap">{site.site_lon}</td>
-                <td className="px-4 py-3 border border-abu3 whitespace-nowrap">{site.site_elevasi}</td>
-                <td className="px-4 py-3 border border-abu3 whitespace-nowrap">{site.site_sts === 1 ? "Aktif" : "Tidak Aktif"}</td>
-                <td className="px-4 py-3 border border-abu3 w-2 whitespace-nowrap">
-                  <EditSite route={`/lahan/edit-lahan/${site.site_id}`} />
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={8} className="px-4 py-4 text-center">No Data Available</td>
-            </tr>
+    <section>
+      <Header title="Lahan" />
+
+      <div className="p-6">
+        {/* TABLE CARD */}
+        <div className="mt-4 bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-gray-600">
+              <thead className="bg-gray-100 text-gray-700 uppercase text-sm">
+                <tr>
+                  <th className="px-4 py-3">ID Lahan</th>
+                  <th className="px-4 py-3">Nama Lahan</th>
+                  <th className="px-4 py-3">Lokasi</th>
+                  <th className="px-4 py-3">Latitude</th>
+                  <th className="px-4 py-3">Longitude</th>
+                  <th className="px-4 py-3">Elevasi</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-center">Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {isLoading && (
+                  <tr>
+                    <td colSpan={8} className="px-4 py-6 text-center">
+                      Loading...
+                    </td>
+                  </tr>
+                )}
+
+                {error && (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="px-4 py-6 text-center text-red-500"
+                    >
+                      {error}
+                    </td>
+                  </tr>
+                )}
+
+                {!isLoading && !error && paginatedData.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="px-4 py-6 text-center">
+                      No Data Available
+                    </td>
+                  </tr>
+                )}
+
+                {paginatedData.map((site) => (
+                  <tr
+                    key={site.site_id}
+                    className="border-t hover:bg-gray-50 text-black"
+                  >
+                    <td className="px-4 py-3">{site.site_id}</td>
+                    <td className="px-4 py-3 font-medium">{site.site_name}</td>
+                    <td className="px-4 py-3">{site.site_address}</td>
+                    <td className="px-4 py-3">{site.site_lat}</td>
+                    <td className="px-4 py-3">{site.site_lon}</td>
+                    <td className="px-4 py-3">{site.site_elevasi} m</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          site.site_sts === 1
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {site.site_sts === 1 ? "Aktif" : "Tidak Aktif"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <EditSite route={`/lahan/edit-lahan/${site.site_id}`} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* PAGINATION */}
+          {totalPages > 1 && (
+            <div className="flex flex-col md:flex-row items-center justify-between px-4 py-3 border-t bg-gray-50">
+              <span className="text-sm text-gray-600">
+                Halaman <b>{currentPage}</b> dari <b>{totalPages}</b>
+              </span>
+
+              <div className="flex gap-2 mt-2 md:mt-0">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 border rounded-md text-sm disabled:opacity-40 hover:bg-gray-100"
+                >
+                  Prev
+                </button>
+
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`px-3 py-1 rounded-md text-sm ${
+                      currentPage === i + 1
+                        ? "bg-primary text-white"
+                        : "border hover:bg-gray-100"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 border rounded-md text-sm disabled:opacity-40 hover:bg-gray-100"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           )}
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
+        </div>
+      </div>
+    </section>
+  );
 }

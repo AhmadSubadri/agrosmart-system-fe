@@ -1,35 +1,40 @@
-import React from 'react'
-import Image from 'next/image';
-import Map from '../assets/Map/Map.svg';
-import Alert1 from '../assets/Map/Alert-Sensor1.svg';
-import Alert2 from '../assets/Map/Alert-Sensor2.svg';
-import Alert3 from '../assets/Map/Alert-Sensor3.svg';
-import Alert4 from '../assets/Map/Alert-Sensor4.svg';
-import Alert5 from '../assets/Map/Alert-Sensor5.svg';
+"use client";
 
-const map = () => {
-    return (
-        <div className="relative w-full h-full">
-            {/* Background Image (if needed) */}
-            <img src="/assets/img/Lahan-cianjur.jpg" alt="gambar lahan" className="object- object-cover" />
-            {/* Alert on Map */}
-            {/* <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                <Alert1 className="object-cover object-center" />
-            </div> */}
-            {/* <div className="absolute inset-0 flex items-center justify-center z-10">
-                <Alert2 className="object-cover object-center" />
-            </div> */}
-            {/* <div className="absolute inset-0 flex items-center justify-center z-10">
-                <Alert3 className="object-cover object-center" />
-            </div> */}
-            {/* <div className="absolute inset-0 flex items-center justify-center z-10">
-                <Alert4 className="object-cover object-center" />
-            </div> */}
-            {/* <div className="absolute inset-0 flex items-center justify-center z-10">
-                <Alert5 className="object-cover object-center" />
-            </div> */}
-        </div>
-    )
+import Image from "next/image";
+
+interface MapProps {
+  image?: string;
+  alt?: string;
 }
 
-export default map
+export default function Map({ image, alt }: MapProps) {
+  return (
+    <div className="relative w-full h-full rounded-xl overflow-hidden bg-gray-100">
+      {image ? (
+        <Image
+          src={image}
+          alt={alt || "Peta Lahan"}
+          fill
+          priority
+          className="object-cover"
+        />
+      ) : (
+        <div className="flex items-center justify-center w-full h-full text-gray-400 text-sm">
+          <img
+            src="/assets/img/Lahan-cianjur.jpg"
+            alt="gambar lahan"
+            className="object- object-cover"
+          />
+        </div>
+      )}
+
+      {/* ALERT SENSOR (siap diaktifkan) */}
+      {/*
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        <Alert1 className="absolute top-[30%] left-[40%]" />
+        <Alert2 className="absolute top-[50%] left-[60%]" />
+      </div>
+      */}
+    </div>
+  );
+}
