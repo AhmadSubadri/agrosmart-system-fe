@@ -129,8 +129,6 @@ export default function RiwayatPage() {
 
   return (
     <section>
-      <Header title="Riwayat Data" />
-
       <div className="p-6 space-y-6">
         {/* FILTER CARD */}
         <div className="bg-white rounded-xl shadow border border-gray-200 p-4">

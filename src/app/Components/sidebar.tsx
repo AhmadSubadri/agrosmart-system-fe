@@ -8,8 +8,8 @@ import { CgProfile } from "react-icons/cg";
 import { IoChatbubbleSharp } from "react-icons/io5";
 import { FaLocationDot } from "react-icons/fa6";
 import {
-  Menu,
-  X,
+  Leaf,
+  Activity,
   Home,
   Clock,
   MapPin,
@@ -48,7 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     {
       title: "Realtime",
       path: "/realtime",
-      icon: <Home className="w-5 h-5" />,
+      icon: <Activity className="w-5 h-5" />,
       description: "Data real-time",
     },
     {
@@ -86,7 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     {
       title: "Deteksi Fase Padi",
       path: "/deteksi-fase-padi",
-      icon: <Sprout className="w-5 h-5" />,
+      icon: <Leaf className="w-5 h-5" />,
       description: "Analisis tanaman padi",
     },
   ];
