@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Back from "../../../../Components/backButton";
+import Back from "../../../Components/backButton";
 
 interface PlantData {
   pl_id: string;

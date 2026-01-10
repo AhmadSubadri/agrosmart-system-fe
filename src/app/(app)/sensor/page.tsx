@@ -139,7 +139,7 @@ export default function Page() {
                     </td>
                     <td className="px-4 py-3 text-center">
                       <EditSensor
-                        route={`/sensor/edit-sensor/${sensor.ds_id}`}
+                        route={`/sensor/edit-sensor/?id=${sensor.ds_id}`}
                       />
                     </td>
                   </tr>

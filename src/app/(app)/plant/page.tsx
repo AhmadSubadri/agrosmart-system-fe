@@ -139,7 +139,9 @@ export default function TanamanPage() {
                     <td className="px-4 py-3">{plant.pl_lat}</td>
                     <td className="px-4 py-3">{plant.pl_lon}</td>
                     <td className="px-4 py-3 text-center">
-                      <EditPlant route={`/plant/edit-plant/${plant.pl_id}`} />
+                      <EditPlant
+                        route={`/plant/edit-plant/?id=${plant.pl_id}`}
+                      />
                     </td>
                   </tr>
                 ))}
