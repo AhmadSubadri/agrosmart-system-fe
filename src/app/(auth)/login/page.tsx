@@ -60,7 +60,7 @@ export default function LoginPage() {
     <div className="flex flex-col md:flex-row h-screen bg-gradient-to-br from-teal-50 to-green-50">
       {/* Bagian Kiri (desktop) / Atas (mobile): Penjelasan */}
       <div
-        className="w-full md:w-1/2 h-[40vh] md:h-full bg-cover bg-center relative overflow-hidden"
+        className="hidden md:flex md:w-1/2 h-full bg-cover bg-center relative overflow-hidden"
         style={{ backgroundImage: "url('/assets/img/sawah.jpg')" }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-teal-900/70 to-teal-700/50 flex items-center justify-center p-6 md:p-10">
@@ -84,7 +84,7 @@ export default function LoginPage() {
       </div>
 
       {/* Bagian Kanan (desktop) / Bawah (mobile): Form Login */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12">
+      <div className="w-full flex items-center justify-center p-6 md:w-1/2 md:p-12">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
