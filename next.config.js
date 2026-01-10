@@ -1,20 +1,21 @@
-module.exports = {
-    webpack: (config) => {
-        config.module.rules.push({
-            test: /\.svg$/,
-            use: ['@svgr/webpack'],
-        });
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: "export",
 
-        return config;
-    },
-    reactStrictMode: false,
-    async redirects() {
-        return [
-            {
-                source: '/',
-                destination: '/dashboard',
-                permanent: true,
-            },
-        ];
-    },
+  images: {
+    unoptimized: true,
+  },
+
+  reactStrictMode: false,
+
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"],
+    });
+
+    return config;
+  },
 };
+
+module.exports = nextConfig;

@@ -5,7 +5,7 @@ import { useState } from "react";
 
 export default function Header({ title }: { title: string }) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [notifications] = useState(3); // Contoh notifikasi belum dibaca
+  const [notifications] = useState(3);
 
   return (
     <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200">
