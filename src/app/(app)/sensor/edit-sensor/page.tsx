@@ -1,27 +1,10 @@
-"use client";
+import { Suspense } from "react";
+import EditSensorClient from "./EditSensorClient";
 
-import EditSensorFormClient from "./editSensorForm";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
-
-export default function EditSensorPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const sensorId = searchParams.get("id");
-
-  // Redirect jika id tidak ada
-  useEffect(() => {
-    if (!sensorId) {
-      router.replace("/sensor");
-    }
-  }, [sensorId, router]);
-
-  // Hindari render sebelum id tersedia
-  if (!sensorId) return null;
-
+export default function Page() {
   return (
-    <section>
-      <EditSensorFormClient sensorId={sensorId} />
-    </section>
+    <Suspense fallback={<p className="p-6">Loading...</p>}>
+      <EditSensorClient />
+    </Suspense>
   );
 }

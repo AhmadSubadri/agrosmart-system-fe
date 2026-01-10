@@ -1,21 +1,10 @@
-"use client";
+import { Suspense } from "react";
+import EditPlantClient from "./EditPlantClient";
 
-import EditPlantFormClient from "./editPlantForm";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
-
-export default function EditPlantPage() {
-  const searchParam = useSearchParams();
-  const router = useRouter();
-  const siteId = searchParam.get("id");
-
-  useEffect(() => {
-    if (!siteId) {
-      router.replace("/plant");
-    }
-  }, [siteId, router]);
-
-  if (!siteId) return null;
-
-  return <EditPlantFormClient plantId={siteId}></EditPlantFormClient>;
+export default function Page() {
+  return (
+    <Suspense fallback={<p className="p-6">Loading...</p>}>
+      <EditPlantClient />
+    </Suspense>
+  );
 }

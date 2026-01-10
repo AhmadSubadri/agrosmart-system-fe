@@ -1,21 +1,10 @@
-"use client";
+import { Suspense } from "react";
+import EditLahanClient from "./EditLahanClient";
 
-import EditSiteFormClient from "./editSiteForm";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
-
-export default function EditSitePage() {
-  const searchParam = useSearchParams();
-  const router = useRouter();
-  const siteId = searchParam.get("id");
-
-  useEffect(() => {
-    if (!siteId) {
-      router.replace("/lahan");
-    }
-  }, [siteId, router]);
-
-  if (!siteId) return null;
-
-  return <EditSiteFormClient siteId={siteId}></EditSiteFormClient>;
+export default function Page() {
+  return (
+    <Suspense fallback={<p className="p-6">Loading...</p>}>
+      <EditLahanClient />
+    </Suspense>
+  );
 }
