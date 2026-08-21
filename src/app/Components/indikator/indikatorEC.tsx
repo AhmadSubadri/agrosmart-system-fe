@@ -1,41 +1,43 @@
-import React from 'react'
-import EC from '../../assets/EC.svg';
+import React from 'react';
+import { Zap } from 'lucide-react';
 
-interface indikatorEcProps {
-    ec: number;
-    status: string;
+interface IndikatorEcProps {
+  ec: number;
+  status: string;
 }
 
-const indikatorEc: React.FC<indikatorEcProps> = ({ ec, status }) => {
-    const bgColor = {
-        OK: 'bg-primary',
-        Warning: 'bg-[#FFD74B]',
-        Danger: 'bg-warning',
-    }[status];
+const IndikatorEc: React.FC<IndikatorEcProps> = ({ ec, status }) => {
+  const isWarn = status === 'Warning';
+  const isDanger = status === 'Danger';
 
-    const bgIcon = {
-        OK: 'text-secondary',
-        Warning: 'text-[#FFF0B4]',
-        Danger: 'text-warningSecondary',
-    }[status];
+  const badgeConfig = isDanger
+    ? { text: 'Kritis', bg: 'bg-clay-100 text-clay-800 border-clay-300', dot: 'bg-clay-600', bar: 'bg-clay-600' }
+    : isWarn
+    ? { text: 'Perhatian', bg: 'bg-wheat-100 text-wheat-900 border-wheat-300', dot: 'bg-wheat-600', bar: 'bg-wheat-500' }
+    : { text: 'Optimal', bg: 'bg-sage-100 text-sage-800 border-sage-200', dot: 'bg-sage-600', bar: 'bg-sage-500' };
 
-    const textColor = {
-        OK: 'text-white',
-        Danger: 'text-white',
-        Warning: 'text-black'
-    }[status];
+  return (
+    <div className="bg-white border border-bone-300 rounded-2xl p-4 shadow-soft hover:shadow-card transition-all relative overflow-hidden flex flex-col justify-between">
+      <div className={`absolute top-0 left-0 bottom-0 w-1.5 ${badgeConfig.bar}`} />
+      
+      <div className="flex items-center justify-between mb-2 pl-1">
+        <span className="text-xs font-bold text-forest-800 uppercase tracking-wider">Konduktivitas (EC)</span>
+        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${badgeConfig.bg} flex items-center gap-1`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${badgeConfig.dot}`} />
+          {badgeConfig.text}
+        </span>
+      </div>
 
-    return (
-        <div className={`${bgColor} w-full h-auto p-4 text-white rounded-xl relative overflow-hidden`}>
-            <div className="absolute inset-0 flex items-center justify-end z-0">
-                <EC className={`${bgIcon} w-2/5`} />
-            </div>
-            <div className='relative z-10'>
-                <h5 className={`mb-3 ${textColor}`}>EC</h5>
-                <span className={`font-bold text-4xl ${textColor}`}>{ec} dS/m</span>
-            </div>
+      <div className="pl-1">
+        <div className="text-3xl font-extrabold text-forest-900 tracking-tight">
+          {ec} <span className="text-sm font-semibold text-sage-700">dS/m</span>
         </div>
-    )
-}
+        <div className="mt-1 text-[11px] text-sage-700/90 font-medium flex items-center gap-1">
+          <Zap className="w-3 h-3 text-sage-500" /> Salinitas & Ion Tanah
+        </div>
+      </div>
+    </div>
+  );
+};
 
-export default indikatorEc
+export default IndikatorEc;

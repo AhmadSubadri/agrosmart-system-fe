@@ -1,22 +1,27 @@
-import React from 'react'
-import Cahaya from "../../assets/Cahaya.svg";
+import React from 'react';
+import { Sun } from 'lucide-react';
 
-interface indikatorCahayaProps {
-    lux: number;
+interface IndikatorCahayaProps {
+  lux: number;
 }
 
-const indikatorCahaya: React.FC<indikatorCahayaProps> = ({ lux }) => {
-    return (
-        <div className={`bg-white border-2 border-[#F0F0F0] w-full h-auto p-4 text-black rounded-xl relative overflow-hidden`}>
-            <div className="absolute inset-0 flex items-center justify-end z-0">
-                <Cahaya className={`text-[#FFF0B4] w-1/3`} />
-            </div>
-            <div className='relative z-10'>
-                <h5 className="mb-3">Kecerahan</h5>
-                <span className="font-bold text-4xl">{lux} L</span>
-            </div>
+const IndikatorCahaya: React.FC<IndikatorCahayaProps> = ({ lux }) => {
+  return (
+    <div className="bg-white border border-bone-300 rounded-2xl p-4 shadow-soft hover:shadow-card transition-shadow flex flex-col justify-between h-full">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs font-semibold text-forest-700 tracking-wide uppercase">Cahaya</span>
+        <div className="w-8 h-8 rounded-xl bg-wheat-50 border border-wheat-200 flex items-center justify-center text-wheat-700">
+          <Sun className="w-4 h-4" />
         </div>
-    )
-}
+      </div>
+      <div>
+        <div className="text-2xl sm:text-3xl font-extrabold text-forest-900 tracking-tight">
+          {lux} <span className="text-sm font-semibold text-sage-700">Lux</span>
+        </div>
+        <div className="mt-1 text-[11px] text-sage-700 font-medium">Intensitas Radiasi</div>
+      </div>
+    </div>
+  );
+};
 
-export default indikatorCahaya
+export default IndikatorCahaya;
