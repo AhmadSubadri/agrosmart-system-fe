@@ -100,9 +100,11 @@ export default function RiwayatChat({
     }
 
     try {
-      // === PERUBAHAN DI SINI: Mengambil 'token' ===
-      const token = localStorage.getItem("token"); // Mengubah dari 'authToken' menjadi 'token'
-      const headers: HeadersInit = { "Content-Type": "application/json" };
+      const token = localStorage.getItem("token");
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      };
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
@@ -211,15 +213,17 @@ export default function RiwayatChat({
       return;
     }
     try {
-      // === PERUBAHAN DI SINI: Mengambil 'token' ===
-      const token = localStorage.getItem("token"); // Mengubah dari 'authToken' menjadi 'token'
-      const headers: HeadersInit = { "Content-Type": "application/json" };
+      const token = localStorage.getItem("token");
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      };
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
       const res = await fetch(
-        `http://localhost:8000/api/chat/history/${encodeURIComponent(title)}`,
+        `${API_URL}/api/chat/history/${encodeURIComponent(title)}`,
         {
           method: "DELETE",
           headers,
@@ -264,15 +268,17 @@ export default function RiwayatChat({
     }
 
     try {
-      // === PERUBAHAN DI SINI: Mengambil 'token' ===
-      const token = localStorage.getItem("token"); // Mengubah dari 'authToken' menjadi 'token'
-      const headers: HeadersInit = { "Content-Type": "application/json" };
+      const token = localStorage.getItem("token");
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      };
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
       const res = await fetch(
-        `http://localhost:8000/api/chat/rename-chat/${encodeURIComponent(
+        `${API_URL}/api/chat/rename-chat/${encodeURIComponent(
           oldTitle
         )}`,
         {
@@ -309,57 +315,52 @@ export default function RiwayatChat({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto space-y-6 text-sm">
-      <div className="flex items-center justify-between mb-2 pl-4 pr-4 pt-4">
-        <h2 className="font-semibold text-lg">Riwayat Chat</h2>
-        {isUserLoggedIn && (
-          <button
-            className="text-black"
-            title="Chat baru"
-            onClick={onAddNewChat}
-          >
-            <BsPencilSquare size={20} />
-          </button>
-        )}
-      </div>
-
+    <div className="flex-1 overflow-y-auto space-y-4 text-xs">
       {!isUserLoggedIn && (
-        <p className="text-gray-400 pl-4 pr-4">
-          Login untuk melihat dan menyimpan riwayat chat Anda.
-        </p>
+        <div className="p-4 text-center text-sage-600 bg-bone-50/60 rounded-xl border border-bone-200 m-2">
+          <p>Login untuk menyimpan riwayat konsultasi Anda.</p>
+        </div>
       )}
 
       {isUserLoggedIn &&
         (Object.keys(history) as Category[]).map((category) => {
           const chats = history[category] || [];
           const validChats = chats.filter(
-            (chat) => chat.title.trim().length > 0
+            (chat) => chat.title && chat.title.trim().length > 0
           );
 
+          if (validChats.length === 0) return null;
+
           return (
-            <div key={category}>
-              <div className="flex items-center justify-between mb-2 pl-4 pr-4">
-                <h2 className="font-semibold text-lg">{category}</h2>
+            <div key={category} className="space-y-1.5 px-1">
+              <div className="px-3 pt-2 pb-1 text-[11px] font-bold text-sage-600 uppercase tracking-wider flex items-center justify-between">
+                <span>{category}</span>
+                <span className="text-[10px] px-1.5 py-0.2 bg-bone-200 text-forest-800 rounded-full font-semibold">
+                  {validChats.length}
+                </span>
               </div>
 
               <div className="space-y-1">
-                {validChats.length === 0 ? (
-                  <p className="text-gray-400 pl-4 pr-4">
-                    Belum ada chat di kategori ini.
-                  </p>
-                ) : (
-                  validChats.map((chat) => (
+                {validChats.map((chat) => {
+                  const isSelected =
+                    selectedChatTitle === chat.title ||
+                    dropdownChatTitle === chat.title;
+
+                  return (
                     <div
                       key={chat.id}
                       onClick={() => handleSelect(chat.title)}
-                      className={`group flex items-center justify-between py-2 rounded-lg cursor-pointer pr-4 pl-4
-                        ${
-                          selectedChatTitle === chat.title ||
-                          dropdownChatTitle === chat.title
-                            ? "bg-gray-300 font-medium"
-                            : "hover:bg-gray-200"
-                        }`}
+                      className={`group relative flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-150 ${
+                        isSelected
+                          ? "bg-sage-100 border border-sage-300 text-forest-950 font-semibold shadow-2xs"
+                          : "text-forest-800 hover:bg-bone-100/70 border border-transparent"
+                      }`}
                     >
+                      {/* Left accent */}
+                      {isSelected && (
+                        <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-sage-600" />
+                      )}
+
                       {editingTitleId === chat.id ? (
                         <input
                           autoFocus
@@ -370,34 +371,34 @@ export default function RiwayatChat({
                             if (e.key === "Enter") submitRename(chat.title);
                             if (e.key === "Escape") setEditingTitleId(null);
                           }}
-                          className="w-full bg-white px-2 py-1 rounded border border-gray-300 text-sm"
+                          className="w-full bg-white px-2 py-1 rounded-lg border border-sage-400 text-xs font-medium text-forest-900 focus:outline-none focus:ring-1 focus:ring-sage-500"
                         />
                       ) : (
-                        <span className="truncate max-w-[calc(100%-40px)]">
+                        <span className="truncate max-w-[calc(100%-28px)] text-xs">
                           {chat.title}
                         </span>
                       )}
 
                       <div
                         onClick={(e) => e.stopPropagation()}
-                        className="relative"
+                        className="relative flex-shrink-0"
                       >
                         <button
-                          className={`transition ${
+                          className={`p-1 rounded-lg text-sage-600 hover:text-forest-900 hover:bg-bone-200 transition-all ${
                             openDropdownId === chat.id
-                              ? "opacity-100"
+                              ? "opacity-100 bg-bone-200"
                               : "opacity-0 group-hover:opacity-100"
                           }`}
                           onClick={() => toggleDropdown(chat.id, chat.title)}
-                          aria-label="Menu"
+                          aria-label="Menu Opsi"
                         >
-                          <MoreVertical size={16} />
+                          <MoreVertical className="w-3.5 h-3.5" />
                         </button>
 
                         {openDropdownId === chat.id && (
                           <div
                             ref={dropdownRef}
-                            className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg text-sm z-10 p-1"
+                            className="absolute right-0 mt-1.5 w-36 bg-white border border-bone-300 rounded-xl shadow-lg text-xs z-30 p-1 divide-y divide-bone-100"
                           >
                             <button
                               onClick={() => {
@@ -406,73 +407,60 @@ export default function RiwayatChat({
                                 setOpenDropdownId(null);
                                 setDropdownChatTitle(null);
                               }}
-                              className="flex items-center w-full px-3 py-2 text-gray-800 rounded-md hover:bg-gray-100"
+                              className="flex items-center w-full px-2.5 py-1.5 text-forest-800 rounded-lg hover:bg-bone-50 transition-colors gap-2"
                             >
-                              <PiPencilSimpleLineFill
-                                size={18}
-                                className="mr-2 text-black"
-                              />{" "}
-                              Ganti Nama
+                              <PiPencilSimpleLineFill className="w-3.5 h-3.5 text-sage-700" />
+                              <span>Ganti Judul</span>
                             </button>
                             <button
                               onClick={() => confirmDelete(chat.title)}
-                              className="flex items-center w-full px-3 py-2 text-red-600 rounded-md hover:bg-red-50"
+                              className="flex items-center w-full px-2.5 py-1.5 text-clay-700 rounded-lg hover:bg-clay-50 transition-colors gap-2"
                             >
-                              <Trash2 size={18} className="mr-2" /> Hapus
+                              <Trash2 className="w-3.5 h-3.5 text-clay-600" />
+                              <span>Hapus Sesi</span>
                             </button>
                           </div>
                         )}
                       </div>
                     </div>
-                  ))
-                )}
+                  );
+                })}
               </div>
             </div>
           );
         })}
+
       {showDeleteConfirm && (
         <Modal>
-          <div className="fixed top-0 left-0 w-screen h-screen z-[9999] bg-black bg-opacity-60 flex items-center justify-center">
+          <div className="fixed inset-0 z-[9999] bg-forest-950/60 backdrop-blur-xs flex items-center justify-center p-4">
             <div
-              className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4 relative"
+              className="bg-white border border-bone-300 p-6 rounded-2xl shadow-xl max-w-sm w-full relative space-y-4"
               ref={modalRef}
             >
-              <button
-                onClick={cancelDelete}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                aria-label="Tutup"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-              <h3 className="text-lg font-bold mb-4">Hapus Percakapan?</h3>
-              <p className="text-sm text-gray-700 mb-6">
-                Apakah Anda yakin ingin menghapus percakapan ini?
-              </p>
-              <div className="flex justify-end gap-3">
+              <div className="flex items-center gap-3 text-clay-700">
+                <div className="w-10 h-10 rounded-xl bg-clay-100 flex items-center justify-center flex-shrink-0">
+                  <Trash2 className="w-5 h-5 text-clay-700" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-forest-900">Hapus Sesi Chat?</h3>
+                  <p className="text-xs text-sage-700 mt-0.5">
+                    Riwayat konsultasi ini akan dihapus secara permanen.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-bone-200">
                 <button
                   onClick={cancelDelete}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                  className="px-3.5 py-2 text-xs font-semibold text-forest-800 bg-bone-100 hover:bg-bone-200 rounded-xl transition-colors"
                 >
-                  Tidak
+                  Batal
                 </button>
                 <button
                   onClick={() => chatToDelete && handleDelete(chatToDelete)}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600"
+                  className="px-3.5 py-2 text-xs font-semibold text-white bg-clay-700 hover:bg-clay-800 rounded-xl transition-colors shadow-2xs"
                 >
-                  Hapus
+                  Hapus Percakapan
                 </button>
               </div>
             </div>

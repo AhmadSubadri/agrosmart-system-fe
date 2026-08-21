@@ -14,9 +14,10 @@ import {
   Zap,
   RefreshCw,
   Activity,
-  CheckCircle2,
+  CheckCircle,
   TrendingUp,
   Shield,
+  Sprout,
 } from "lucide-react";
 
 interface ActionMessage {
@@ -74,7 +75,10 @@ export default function Realtime() {
       return;
     }
 
-    if (!siteId) return;
+    if (!siteId) {
+      setIsRefreshing(false);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -84,7 +88,7 @@ export default function Realtime() {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Failed fetch realtime");
@@ -134,201 +138,184 @@ export default function Realtime() {
   }, [siteId, router]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
-      {/* Header Section */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
-        <div className="flex flex-col">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Monitoring Real-time
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Data sensor terkini dari lahan pertanian
+    <div className="space-y-6">
+      {/* Header Controls */}
+      <div className="bg-white border border-bone-300/80 rounded-2xl p-4 sm:p-6 shadow-soft flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-forest-900 tracking-tight">
+            Telemetri Realtime Lahan
+          </h2>
+          <p className="text-sm text-sage-700 mt-0.5">
+            Streaming data sensor tanah 8-parameter & kondisi mikroklimat
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <Site
             onSiteChange={(id) => setSiteId(id)}
-            className="w-full sm:w-64"
+            className="w-full sm:w-60"
           />
 
           <button
             onClick={fetchRealtimeData}
             disabled={isRefreshing}
-            className="px-4 py-2.5 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2"
+            className="px-4 py-2.5 bg-white border border-bone-300 hover:border-sage-400 text-forest-800 text-sm font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 hover:bg-bone-50 disabled:opacity-60"
           >
             <RefreshCw
-              className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+              className={`w-4 h-4 text-sage-600 ${isRefreshing ? "animate-spin" : ""}`}
             />
-            <span>Refresh Data</span>
+            <span>Refresh</span>
           </button>
         </div>
       </div>
 
-      {/* Update Info */}
-      <div className="mb-8 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Clock className="w-4 h-4" />
-          <span>Update Terakhir: </span>
-          <span className="font-semibold">
-            {data?.last_updated || "Sedang memuat..."}
+      {/* Meta info */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs text-sage-700 font-medium">
+        <div className="flex items-center gap-2 bg-bone-100/70 border border-bone-200 px-3 py-1.5 rounded-full">
+          <Clock className="w-3.5 h-3.5 text-sage-600" />
+          <span>Update Terakhir:</span>
+          <span className="font-bold text-forest-900">
+            {data?.last_updated || "Sinkronisasi..."}
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-green-500" />
-          <span className="text-sm text-gray-600">
-            {data?.soil_temp.length || 0} Sensor Aktif
+
+        <div className="flex items-center gap-2 bg-bone-100/70 border border-bone-200 px-3 py-1.5 rounded-full">
+          <Activity className="w-3.5 h-3.5 text-sage-600" />
+          <span>Node Terpasang:</span>
+          <span className="font-bold text-forest-900">
+            {data?.soil_temp.length || 0} Zona Area
           </span>
         </div>
       </div>
 
-      {/* Map & Warnings Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Map Section */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden h-full">
-            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-blue-600" />
-                Peta Lokasi Lahan
-              </h2>
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                Live View
-              </span>
-            </div>
-            <div className="h-[400px] relative">
-              <Map />
-            </div>
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Zap className="w-4 h-4 text-green-500" />
-                <span>
-                  Sistem monitoring aktif dengan {data?.soil_temp.length || 0}{" "}
-                  titik sensor
-                </span>
+      {/* Map & Warnings Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Map */}
+        <div className="lg:col-span-7 bg-white border border-bone-300 rounded-2xl shadow-soft overflow-hidden flex flex-col">
+          <div className="p-4 sm:p-5 border-b border-bone-200 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-forest-50 border border-forest-100 flex items-center justify-center text-forest-700">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="font-bold text-forest-900 text-base">Denah Plot Titik Sensor</h3>
+                <p className="text-xs text-sage-700">Penempatan node sensor telemetri</p>
               </div>
             </div>
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-sage-100 border border-sage-200 text-forest-800">
+              Live Link
+            </span>
+          </div>
+          <div className="h-[320px] sm:h-[360px] relative bg-bone-100">
+            <Map />
           </div>
         </div>
 
-        {/* Warnings Section */}
-        <div className="bg-white rounded-2xl shadow-xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-600" />
-              Peringatan Sistem
-            </h2>
-            <div
-              className={`px-3 py-1 rounded-full text-xs font-medium ${
+        {/* Warnings Feed */}
+        <div className="lg:col-span-5 bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-bone-200">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-clay-600" />
+              <h3 className="font-bold text-forest-900 text-base">Peringatan Status</h3>
+            </div>
+            <span
+              className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
                 warnings.length > 0
-                  ? "bg-amber-100 text-amber-700"
-                  : "bg-green-100 text-green-700"
+                  ? "bg-wheat-100 text-wheat-900 border-wheat-200"
+                  : "bg-sage-100 text-sage-900 border-sage-200"
               }`}
             >
-              {warnings.length} Peringatan
-            </div>
+              {warnings.length} Masalah
+            </span>
           </div>
 
-          <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
             {warnings.length > 0 ? (
-              warnings.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`p-4 rounded-xl border ${
-                    msg.value_status === "Danger"
-                      ? "bg-gradient-to-r from-red-50 to-rose-50 border-red-200"
-                      : "bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
+              warnings.map((msg, idx) => {
+                const isDanger = msg.value_status === "Danger";
+                return (
+                  <div
+                    key={idx}
+                    className={`p-3.5 rounded-xl border flex items-start gap-3 ${
+                      isDanger
+                        ? "bg-clay-50 border-clay-200 text-clay-900"
+                        : "bg-wheat-50 border-wheat-200 text-wheat-900"
+                    }`}
+                  >
                     <div
-                      className={`p-2 rounded-lg ${
-                        msg.value_status === "Danger"
-                          ? "bg-red-100"
-                          : "bg-amber-100"
+                      className={`p-1.5 rounded-lg mt-0.5 ${
+                        isDanger ? "bg-clay-100 text-clay-700" : "bg-wheat-100 text-wheat-700"
                       }`}
                     >
-                      <AlertTriangle
-                        className={`w-5 h-5 ${
-                          msg.value_status === "Danger"
-                            ? "text-red-600"
-                            : "text-amber-600"
-                        }`}
-                      />
+                      <AlertTriangle className="w-4 h-4" />
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900 mb-1">
-                        {msg.status_message}
-                      </h4>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Thermometer className="w-3 h-3 text-gray-500" />
-                        <span className="text-sm text-gray-600">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="font-bold text-xs sm:text-sm truncate">
+                          {msg.status_message}
+                        </h4>
+                        <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">
                           {msg.sensor_name}
                         </span>
                       </div>
-                      <div
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium inline-block ${
-                          msg.value_status === "Danger"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-amber-100 text-amber-700"
-                        }`}
-                      >
+                      <p className="text-xs mt-1 font-medium opacity-90">
                         {msg.action_message}
-                      </div>
+                      </p>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Shield className="w-8 h-8 text-green-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  Semua Sistem Normal
-                </h3>
-                <p className="text-gray-500 text-sm">
-                  Tidak ada peringatan atau gangguan pada sistem sensor
+              <div className="text-center py-10">
+                <CheckCircle className="w-12 h-12 text-sage-500 mx-auto mb-2 opacity-80" />
+                <h4 className="text-sm font-bold text-forest-900 mb-1">
+                  Semua Parameter Stabil
+                </h4>
+                <p className="text-xs text-sage-700">
+                  Tidak ada anomali sensor yang memerlukan intervensi
                 </p>
               </div>
             )}
           </div>
 
           {warnings.length > 0 && (
-            <div className="mt-6 pt-4 border-t border-gray-200">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <AlertTriangle className="w-4 h-4 text-amber-500" />
-                <span>Segera lakukan tindakan sesuai rekomendasi sistem</span>
-              </div>
+            <div className="mt-4 pt-3 border-t border-bone-200 text-xs text-sage-700 font-medium flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5 text-wheat-600 flex-shrink-0" />
+              <span>Segera lakukan verifikasi lapangan sesuai petunjuk.</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Sensor Realtime Section */}
-      <div className="bg-white rounded-2xl shadow-xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-green-600" />
-              Data Sensor Real-time
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              Data terkini dari semua sensor yang terpasang di lahan
-            </p>
+      {/* Sensor Realtime Matrix */}
+      <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-bone-200">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-forest-800 text-wheat-300 flex items-center justify-center font-bold">
+              <TrendingUp className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-bold text-forest-900 text-base sm:text-lg">
+                Data Sensor Real-time Lengkap
+              </h3>
+              <p className="text-xs text-sage-700">
+                Data terperinci 8 parameter hara dan kondisi fisik tanah
+              </p>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Normal</span>
+
+          <div className="hidden sm:flex items-center gap-3 text-xs font-semibold text-forest-800">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-sage-500" />
+              <span>Optimal</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Warning</span>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-wheat-500" />
+              <span>Perhatian</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Danger</span>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-clay-500" />
+              <span>Kritis</span>
             </div>
           </div>
         </div>
@@ -359,65 +346,24 @@ export default function Realtime() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Activity className="w-8 h-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Data Sensor Belum Tersedia
-            </h3>
-            <p className="text-gray-500 mb-4">
-              Pilih lokasi lahan atau pastikan sensor terhubung dengan sistem
+          <div className="text-center py-12 bg-bone-50 rounded-2xl border border-bone-200">
+            <Activity className="w-10 h-10 text-sage-400 mx-auto mb-2" />
+            <h4 className="text-sm font-bold text-forest-900 mb-1">
+              Data Telemetri Belum Tersedia
+            </h4>
+            <p className="text-xs text-sage-700 mb-4">
+              Pilih lokasi lahan atau periksa sambungan gateway IoT
             </p>
             <button
               onClick={fetchRealtimeData}
-              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all"
+              className="px-4 py-2 bg-forest-900 hover:bg-forest-800 text-wheat-300 text-xs font-bold rounded-xl transition-all shadow-sm"
             >
-              Coba Muat Ulang
+              Muat Ulang Telemetri
             </button>
           </div>
         )}
-
-        <div className="mt-6 pt-4 border-t border-gray-200">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Droplets className="w-4 h-4 text-blue-500" />
-            <span>Data diperbarui setiap 5 menit secara otomatis</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer Info */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-xl border border-blue-100">
-          <div className="flex items-center gap-3 mb-2">
-            <Thermometer className="w-5 h-5 text-blue-600" />
-            <h4 className="font-semibold text-gray-900">Sensor Suhu Tanah</h4>
-          </div>
-          <p className="text-sm text-gray-600">
-            Monitoring suhu tanah untuk optimasi pertumbuhan tanaman
-          </p>
-        </div>
-
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
-          <div className="flex items-center gap-3 mb-2">
-            <Droplets className="w-5 h-5 text-green-600" />
-            <h4 className="font-semibold text-gray-900">Sensor Kelembapan</h4>
-          </div>
-          <p className="text-sm text-gray-600">
-            Pantau kelembapan tanah untuk pengaturan irigasi yang optimal
-          </p>
-        </div>
-
-        <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-4 rounded-xl border border-purple-100">
-          <div className="flex items-center gap-3 mb-2">
-            <Activity className="w-5 h-5 text-purple-600" />
-            <h4 className="font-semibold text-gray-900">Sensor Nutrisi</h4>
-          </div>
-          <p className="text-sm text-gray-600">
-            Analisis kandungan NPK dan pH tanah untuk pemupukan presisi
-          </p>
-        </div>
       </div>
     </div>
   );
 }
+

@@ -1,67 +1,99 @@
 "use client";
 
-import { Bell, Search, Settings, Menu, HelpCircle } from "lucide-react";
-import { useState } from "react";
+import { Menu, Activity, ShieldCheck, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 
-export default function Header({ title }: { title: string }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [notifications] = useState(3);
+interface HeaderProps {
+  title: string;
+  onToggleMobileMenu?: () => void;
+}
+
+export default function Header({ title, onToggleMobileMenu }: HeaderProps) {
+  const [userName, setUserName] = useState<string>("Pengguna");
+  const [userRole, setUserRole] = useState<string>("Smart Farming");
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.user_name) setUserName(parsed.user_name);
+        if (parsed.user_email) setUserRole(parsed.user_email);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
+  };
 
   return (
-    <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200">
-      <div className="flex items-center justify-between px-8 py-4">
-        {/* Left Section - Title and Breadcrumb */}
-        <div className="flex flex-col">
-          <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-          <div className="flex items-center mt-1">
-            <span className="text-sm text-gray-500">Kawal Tani</span>
-            <span className="mx-2 text-gray-400">/</span>
-            <span className="text-sm font-medium text-blue-600">{title}</span>
+    <header className="sticky top-0 z-30 bg-[#FAF9F6]/90 backdrop-blur-md border-b border-bone-200/90 shadow-soft">
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3.5">
+        {/* Left Section - Hamburger & Breadcrumb */}
+        <div className="flex items-center gap-3">
+          {/* Mobile hamburger button */}
+          <button
+            onClick={onToggleMobileMenu}
+            className="lg:hidden p-2 rounded-xl text-forest-700 hover:text-forest-900 hover:bg-bone-200 transition-colors"
+            aria-label="Buka Menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-forest-900 tracking-tight">
+                {title}
+              </h1>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-sage-700/80 font-medium">
+              <span>Kawal Tani</span>
+              <span className="text-bone-400">/</span>
+              <span className="text-forest-700">{title}</span>
+            </div>
           </div>
         </div>
 
-        {/* Right Section - Search and Actions */}
-        <div className="flex items-center space-x-4">
-          {/* Action Icons */}
-          <div className="flex items-center space-x-3">
-            {/* Help Button */}
-            <button className="p-2.5 rounded-xl hover:bg-gray-100 transition-colors group relative">
-              <HelpCircle className="h-5 w-5 text-gray-600 group-hover:text-blue-600" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
-            </button>
+        {/* Right Section - Live Status & User Info */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* Live IoT Status Pill */}
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-sage-100 border border-sage-200 text-xs font-medium text-forest-800">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sage-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-sage-600"></span>
+            </span>
+            <span className="tracking-wide">IoT Telemetri Aktif</span>
+          </div>
 
-            {/* User Profile */}
-            <div className="flex items-center space-x-3 pl-3 border-l border-gray-200">
-              <div className="flex flex-col items-end">
-                <span className="font-medium text-gray-900">Dashboard</span>
-                <span className="text-sm text-gray-500">Smart System</span>
+          {/* User Profile Capsule */}
+          <div className="flex items-center gap-3 pl-3 border-l border-bone-200">
+            <div className="hidden md:flex flex-col items-end text-right">
+              <span className="font-semibold text-sm text-forest-900 leading-tight">
+                {userName}
+              </span>
+              <span className="text-[11px] text-sage-700/90 font-medium truncate max-w-[140px]">
+                {userRole}
+              </span>
+            </div>
+
+            <div className="relative">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-forest-800 border border-forest-700 text-wheat-300 font-bold flex items-center justify-center text-xs sm:text-sm shadow-sm">
+                {getInitials(userName)}
               </div>
-              <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold">
-                  SS
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-              </div>
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-sage-500 border-2 border-white rounded-full"></span>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Mobile Search Bar */}
-      <div className="md:hidden px-8 pb-4">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            placeholder="Cari di sistem..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2.5 w-full rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 transition-colors"
-          />
-        </div>
-      </div>
-    </div>
+    </header>
   );
 }
+

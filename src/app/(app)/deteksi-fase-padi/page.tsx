@@ -14,8 +14,9 @@ import {
   Shield,
   AlertTriangle,
   CheckCircle,
-  Zap,
   Camera,
+  Sparkles,
+  Info,
 } from "lucide-react";
 
 /* ================= TYPES ================= */
@@ -29,24 +30,24 @@ type ResultType = {
 /* ================= REKOMENDASI ================= */
 const rekomendasiPemupukan: Record<FaseKey, string> = {
   fase_v1:
-    "Gunakan pupuk NPK seimbang dengan komposisi 15:15:15 untuk mendukung pertumbuhan akar dan daun awal.",
+    "Gunakan pupuk NPK seimbang dengan komposisi 15:15:15 untuk mendukung pertumbuhan perakaran primer dan pembentukan anakan awal.",
   fase_v2:
-    "Tingkatkan pupuk nitrogen untuk mendukung pertumbuhan vegetatif maksimal dan pembentukan anakan.",
+    "Tingkatkan pupuk Nitrogen (Urea) untuk memacu pertumbuhan vegetatif maksimal dan memperbanyak anakan produktif.",
   fase_g1:
-    "Fokus pada pupuk kalium dan fosfor untuk memperkuat malai dan meningkatkan ketahanan tanaman.",
+    "Fokus pada pupuk Kalium (KCl) dan Fosfor (SP-36) guna memperkokoh malai, memperbanyak bulir, dan ketahanan rebah.",
   fase_g2:
-    "Kurangi pemupukan, fokus pada pengelolaan air dan pengendalian hama menjelang panen.",
+    "Hentikan pemupukan kimia, jaga kecukupan air sawah macak-macak menjelang pengeringan lahan sebelum panen.",
 };
 
 const rekomendasiHama: Record<FaseKey, string> = {
   fase_v1:
-    "Pantau serangan wereng, penggerek batang, dan keong mas. Gunakan pestisida selektif jika diperlukan.",
+    "Waspadai keong mas dan wereng coklat pada masa anakan awal. Pasang saringan pada saluran masuk air irigasi.",
   fase_v2:
-    "Waspada ulat grayak, belalang, dan hama daun. Lakukan monitoring rutin setiap 3 hari.",
+    "Monitoring rutin serangan penggerek batang (sundep) dan ulat grayak. Lakukan pengendalian hayati atau insektisida selektif.",
   fase_g1:
-    "Perhatikan walang sangit saat malai terbentuk. Gunakan perangkap feromon untuk pengendalian.",
+    "Pengendalian intensif terhadap hama walang sangit saat padi mulai berbunga. Gunakan perangkap aroma / feromon.",
   fase_g2:
-    "Cegah serangan tikus, burung, dan penggerek batang padi. Pasang perangkap dan jaring pelindung.",
+    "Lindungi malai dari serangan burung pipit dan hama tikus sawah. Pasang jaring pelindung atau perangkap umpan.",
 };
 
 /* ================= DATA FASE ================= */
@@ -55,36 +56,36 @@ const faseCards = [
     key: "fase_v1",
     title: "Fase Vegetatif Awal",
     subtitle: "V1 (0–35 HST)",
-    desc: "Pertumbuhan daun dan akar cepat",
-    icon: <Sprout className="w-6 h-6" />,
-    color: "from-green-500 to-emerald-600",
+    desc: "Pertumbuhan perakaran dan daun awal",
+    icon: <Sprout className="w-5 h-5" />,
+    badgeBg: "bg-sage-100 text-forest-800 border-sage-300",
     img: "/assets/img/deteksi-fase/v1.jpg",
   },
   {
     key: "fase_v2",
     title: "Fase Vegetatif Akhir",
     subtitle: "V2 (35–55 HST)",
-    desc: "Tunas dan daun bertambah optimal",
-    icon: <Leaf className="w-6 h-6" />,
-    color: "from-emerald-500 to-green-600",
+    desc: "Pembentukan anakan dan perpanjangan batang",
+    icon: <Leaf className="w-5 h-5" />,
+    badgeBg: "bg-forest-100 text-forest-900 border-forest-300",
     img: "/assets/img/deteksi-fase/v2.jpg",
   },
   {
     key: "fase_g1",
     title: "Fase Reproduktif",
     subtitle: "G1 (55–85 HST)",
-    desc: "Malai mulai terbentuk dan berkembang",
-    icon: <Flower2 className="w-6 h-6" />,
-    color: "from-amber-500 to-yellow-600",
+    desc: "Inisiasi malai, bunting, dan berbunga",
+    icon: <Flower2 className="w-5 h-5" />,
+    badgeBg: "bg-wheat-100 text-wheat-900 border-wheat-300",
     img: "/assets/img/deteksi-fase/g1.jpg",
   },
   {
     key: "fase_g2",
     title: "Fase Pematangan",
     subtitle: "G2 (85+ HST)",
-    desc: "Gabah menguning dan siap panen",
-    icon: <Wheat className="w-6 h-6" />,
-    color: "from-orange-500 to-amber-600",
+    desc: "Pengisian bulir, menguning, siap panen",
+    icon: <Wheat className="w-5 h-5" />,
+    badgeBg: "bg-clay-100 text-clay-900 border-clay-300",
     img: "/assets/img/deteksi-fase/g2.jpg",
   },
 ];
@@ -96,7 +97,11 @@ export default function DeteksiFasePage() {
   const [result, setResult] = useState<ResultType | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeFase, setActiveFase] = useState<FaseKey | null>(null);
-  const API_DETEKSI_FASE = process.env.API_BE_DETEKSI_FASE;
+  const API_DETEKSI_FASE =
+    process.env.NEXT_PUBLIC_API_BE_DETEKSI_FASE ||
+    process.env.API_BE_DETEKSI_FASE ||
+    "http://127.0.0.1:8080";
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -123,7 +128,7 @@ export default function DeteksiFasePage() {
       if (data.fase) setActiveFase(data.fase);
     } catch {
       setResult({
-        error: "Gagal menghubungi server. Pastikan server deteksi berjalan.",
+        error: "Gagal terhubung ke layanan AI deteksi fase. Pastikan backend deteksi fase aktif.",
       });
     } finally {
       setLoading(false);
@@ -141,217 +146,163 @@ export default function DeteksiFasePage() {
     faseCards.find((f) => f.key === fase)?.title || "-";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Deteksi Fase Padi</h1>
-        <p className="text-gray-600 mt-1">
-          Analisis otomatis fase pertumbuhan padi menggunakan teknologi computer
-          vision
-        </p>
+    <div className="space-y-6">
+      {/* Header Banner */}
+      <div className="bg-white border border-bone-300/80 rounded-2xl p-4 sm:p-6 shadow-soft flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-forest-900 tracking-tight">
+              Deteksi Fase Pertumbuhan Padi
+            </h2>
+          </div>
+          <p className="text-sm text-sage-700 mt-0.5">
+            Analisis citra agronomik berbasis Computer Vision untuk rekomendasi perawatan presisi
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-sage-100 border border-sage-200 text-xs font-semibold text-forest-800">
+          <Sparkles className="w-3.5 h-3.5 text-sage-600" />
+          <span>Vision AI Aktif</span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ================= FASE LIST ================= */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-2xl shadow-xl p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Leaf className="w-5 h-5 text-green-600" />
-              Fase Pertumbuhan Padi
-            </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* ================= FASE REFERENCE LIST ================= */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-bone-200">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-sage-50 border border-sage-100 flex items-center justify-center text-sage-600">
+                  <Leaf className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-forest-900 text-base">Katalog Fase Pertumbuhan</h3>
+                  <p className="text-xs text-sage-700">4 tahapan utama siklus hidup tanaman padi</p>
+                </div>
+              </div>
+            </div>
 
-            <div className="space-y-4">
-              {faseCards.map((fase) => (
-                <div
-                  key={fase.key}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer group ${
-                    activeFase === fase.key
-                      ? `border-transparent bg-gradient-to-r ${fase.color} text-white shadow-lg`
-                      : "border-gray-200 hover:border-gray-300 hover:shadow-md"
-                  }`}
-                  onClick={() => setActiveFase(fase.key as FaseKey)}
-                >
-                  <div className="flex items-start gap-3">
-                    {/* Icon Container */}
-                    <div
-                      className={`p-2 rounded-lg flex-shrink-0 ${
-                        activeFase === fase.key ? "bg-white/20" : "bg-gray-100"
-                      }`}
-                    >
-                      {fase.icon}
-                    </div>
-
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3
-                          className={`font-semibold ${
-                            activeFase === fase.key
-                              ? "text-white"
-                              : "text-gray-900"
-                          }`}
-                        >
-                          {fase.title}
-                        </h3>
-                        <span
-                          className={`text-sm ${
-                            activeFase === fase.key
-                              ? "text-white/90"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          {fase.subtitle}
-                        </span>
-                      </div>
-                      <p
-                        className={`text-sm mt-1 ${
-                          activeFase === fase.key
-                            ? "text-white/80"
-                            : "text-gray-600"
+            <div className="space-y-3">
+              {faseCards.map((fase) => {
+                const isSelected = activeFase === fase.key;
+                return (
+                  <div
+                    key={fase.key}
+                    onClick={() => setActiveFase(fase.key as FaseKey)}
+                    className={`p-3.5 rounded-xl border transition-all cursor-pointer relative overflow-hidden ${
+                      isSelected
+                        ? "bg-forest-900 text-bone-50 border-forest-800 shadow-md"
+                        : "bg-bone-50/70 border-bone-200 hover:border-sage-400 hover:bg-white text-forest-900"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`p-2 rounded-lg flex-shrink-0 ${
+                          isSelected
+                            ? "bg-sage-600/30 text-wheat-300 border border-sage-500/30"
+                            : "bg-white text-forest-700 border border-bone-300"
                         }`}
                       >
-                        {fase.desc}
-                      </p>
+                        {fase.icon}
+                      </div>
 
-                      {/* Image Preview - Hover Effect */}
-                      <div className="mt-3 relative">
-                        <div
-                          className={`overflow-hidden rounded-lg transition-all duration-300 ${
-                            activeFase === fase.key
-                              ? "max-h-32 opacity-100"
-                              : "max-h-0 opacity-0 group-hover:max-h-32 group-hover:opacity-100"
-                          }`}
-                        >
-                          <div className="relative h-32 w-full">
-                            <Image
-                              src={fase.img}
-                              alt={fase.title}
-                              fill
-                              className="object-cover rounded-lg"
-                              sizes="(max-width: 768px) 100vw, 50vw"
-                            />
-                            {/* Gradient Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg"></div>
-
-                            {/* Image Info */}
-                            <div className="absolute bottom-2 left-2 right-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-medium text-white bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
-                                  Contoh Fase
-                                </span>
-                                <span className="text-xs text-white/80 bg-black/30 px-2 py-1 rounded-full">
-                                  Klik untuk detail
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Preview Indicator */}
-                          <div className="absolute -top-2 right-2">
-                            <div className="px-2 py-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-medium rounded-full shadow-lg">
-                              Preview
-                            </div>
-                          </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className={`font-bold text-sm truncate ${isSelected ? "text-white" : "text-forest-900"}`}>
+                            {fase.title}
+                          </h4>
+                          <span
+                            className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${
+                              isSelected
+                                ? "bg-forest-800 text-wheat-300 border-forest-700"
+                                : fase.badgeBg
+                            }`}
+                          >
+                            {fase.subtitle}
+                          </span>
                         </div>
-
-                        {/* Hover Instruction */}
-                        {activeFase !== fase.key && (
-                          <div className="mt-2 flex items-center gap-2 text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Camera className="w-3 h-3" />
-                            <span>
-                              Hover untuk preview gambar • Klik untuk pilih fase
-                            </span>
-                          </div>
-                        )}
+                        <p className={`text-xs mt-1 leading-relaxed ${isSelected ? "text-sage-300" : "text-sage-700"}`}>
+                          {fase.desc}
+                        </p>
                       </div>
                     </div>
-
-                    {/* Active State Indicator */}
-                    {activeFase === fase.key && (
-                      <div className="absolute -top-2 -right-2">
-                        <div className="w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
-                          <CheckCircle className="w-3 h-3 text-white" />
-                        </div>
-                      </div>
-                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
-          {/* Info Card */}
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100">
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <Zap className="w-5 h-5 text-blue-600" />
-              Tips Pengambilan Gambar
-            </h3>
-            <ul className="space-y-2 text-sm text-gray-600">
+          {/* Guideline Card */}
+          <div className="bg-bone-50 border border-bone-300/80 rounded-2xl p-4 sm:p-5 shadow-soft">
+            <div className="flex items-center gap-2 mb-3">
+              <Info className="w-4 h-4 text-forest-700" />
+              <h4 className="font-bold text-xs sm:text-sm text-forest-900 uppercase tracking-wide">
+                Pedoman Pengambilan Gambar
+              </h4>
+            </div>
+            <ul className="space-y-2 text-xs text-sage-800 font-medium">
               <li className="flex items-start gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <span>Ambil foto dari atas dengan pencahayaan cukup</span>
+                <CheckCircle className="w-3.5 h-3.5 text-sage-600 mt-0.5 flex-shrink-0" />
+                <span>Ambil foto tegak lurus dari atas kanopi tanaman padi.</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <span>Pastikan fokus pada tanaman padi secara jelas</span>
+                <CheckCircle className="w-3.5 h-3.5 text-sage-600 mt-0.5 flex-shrink-0" />
+                <span>Gunakan pencahayaan alami cukup (pukul 08.00 - 15.00).</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                <span>Hindari gambar blur atau terlalu gelap</span>
+                <CheckCircle className="w-3.5 h-3.5 text-sage-600 mt-0.5 flex-shrink-0" />
+                <span>Pastikan gambar tajam dan tidak kabur (*blurry*).</span>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* ================= UPLOAD & PREVIEW ================= */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* ================= UPLOAD & PREVIEW & RESULTS ================= */}
+        <div className="lg:col-span-7 space-y-6">
           {/* Upload Card */}
-          <div className="bg-white rounded-2xl shadow-xl p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Camera className="w-5 h-5 text-blue-600" />
-                Analisis Gambar Sawah
-              </h2>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Upload className="w-4 h-4" />
-                <span>Unggah gambar JPG/PNG</span>
+          <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-bone-200">
+              <div className="flex items-center gap-2">
+                <Camera className="w-5 h-5 text-forest-800" />
+                <h3 className="font-bold text-forest-900 text-base">Unggah Citra Tanaman</h3>
               </div>
+              <span className="text-xs text-sage-700 font-medium">Format: JPG, PNG</span>
             </div>
 
-            {/* Image Preview Area */}
+            {/* Image Preview Box */}
             <div
-              className={`relative w-full h-96 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all ${
+              className={`relative w-full h-72 sm:h-80 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all overflow-hidden ${
                 preview
-                  ? "border-gray-300 bg-gray-50"
-                  : "border-gray-300 hover:border-blue-400 hover:bg-blue-50/30"
+                  ? "border-bone-300 bg-bone-50"
+                  : "border-bone-300 hover:border-sage-500 hover:bg-bone-50/50"
               }`}
             >
               {preview ? (
-                <div className="relative w-full h-full p-4">
+                <div className="relative w-full h-full p-2">
                   <img
                     src={preview}
-                    alt="Preview"
+                    alt="Preview Lahan"
                     className="w-full h-full object-contain rounded-xl"
                   />
                   <div className="absolute top-4 right-4">
-                    <span className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-full">
-                      Gambar Terpilih
+                    <span className="px-3 py-1 bg-forest-900/90 backdrop-blur-sm text-wheat-300 text-xs font-semibold rounded-full shadow-sm">
+                      Citra Siap Dianalisis
                     </span>
                   </div>
                 </div>
               ) : (
-                <label className="cursor-pointer flex flex-col items-center justify-center p-8 text-center">
-                  <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mb-4">
-                    <Upload className="w-10 h-10 text-blue-600" />
+                <label className="cursor-pointer flex flex-col items-center justify-center p-6 text-center w-full h-full">
+                  <div className="w-14 h-14 bg-bone-100 rounded-2xl border border-bone-200 flex items-center justify-center mb-3 text-forest-800">
+                    <Upload className="w-7 h-7" />
                   </div>
-                  <span className="text-lg font-medium text-gray-700 mb-2">
-                    Pilih Gambar Lahan
+                  <span className="text-sm font-bold text-forest-900 mb-1">
+                    Pilih File Foto Tanaman
                   </span>
-                  <p className="text-gray-500 text-sm mb-4 max-w-sm">
-                    Unggah foto lahan padi untuk analisis fase pertumbuhan
-                    otomatis
+                  <p className="text-xs text-sage-700 max-w-xs mb-4">
+                    Tarik file ke sini atau klik untuk membuka galeri foto lahan
                   </p>
-                  <div className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all">
-                    Pilih File
+                  <div className="px-4 py-2 bg-forest-900 hover:bg-forest-800 text-wheat-300 text-xs font-bold rounded-xl shadow-sm transition-colors">
+                    Jelajahi File
                   </div>
                   <input
                     type="file"
@@ -364,25 +315,25 @@ export default function DeteksiFasePage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <div className="flex flex-col sm:flex-row gap-3 mt-4">
               <button
                 onClick={handleUpload}
                 disabled={!image || loading || !!result?.fase}
-                className={`px-6 py-3.5 font-medium rounded-xl transition-all flex items-center justify-center gap-2 flex-1 ${
+                className={`py-3 px-5 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 flex-1 shadow-sm ${
                   !image || loading || result?.fase
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl"
+                    ? "bg-bone-200 text-bone-400 cursor-not-allowed"
+                    : "bg-forest-900 hover:bg-forest-800 text-wheat-300 active:scale-[0.99]"
                 }`}
               >
                 {loading ? (
                   <>
-                    <RefreshCw className="w-5 h-5 animate-spin" />
-                    <span>Menganalisis...</span>
+                    <RefreshCw className="w-4 h-4 animate-spin text-wheat-300" />
+                    <span>Sedang Menganalisis Citra...</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Analisis Gambar</span>
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Jalankan Analisis AI</span>
                   </>
                 )}
               </button>
@@ -390,165 +341,83 @@ export default function DeteksiFasePage() {
               {preview && (
                 <button
                   onClick={handleReset}
-                  className="px-6 py-3.5 bg-white border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+                  className="py-3 px-4 bg-white border border-bone-300 text-forest-800 text-sm font-semibold rounded-xl hover:bg-bone-50 transition-all flex items-center justify-center gap-2"
                 >
-                  <RefreshCw className="w-5 h-5" />
-                  <span>Ganti Gambar</span>
+                  <RefreshCw className="w-4 h-4 text-sage-600" />
+                  <span>Ganti Foto</span>
                 </button>
               )}
             </div>
 
+            {/* Error Message */}
             {result?.error && (
-              <div className="mt-4 p-4 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 rounded-xl">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-red-800">Error Deteksi</h4>
-                    <p className="text-red-700 text-sm mt-1">{result.error}</p>
-                  </div>
+              <div className="mt-4 p-4 bg-clay-50 border border-clay-200 text-clay-900 rounded-xl text-xs font-semibold flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-clay-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h5 className="font-bold">Gagal Menganalisis</h5>
+                  <p className="mt-0.5 font-normal">{result.error}</p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* ================= RESULTS ================= */}
+          {/* ================= RESULTS SECTION ================= */}
           {result?.fase && (
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Hasil Deteksi
-                </h2>
-                <div className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium rounded-full">
+            <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6 space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-bone-200">
+                <div>
+                  <h3 className="font-bold text-forest-900 text-base">Hasil Diagnosis AI</h3>
+                  <p className="text-xs text-sage-700">Fase pertumbuhan tanaman teridentifikasi</p>
+                </div>
+                <span className="px-3.5 py-1.5 bg-forest-900 text-wheat-300 font-extrabold text-sm rounded-full border border-forest-800">
                   {getFaseLabel(result.fase)}
-                </div>
+                </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Pemupukan Card */}
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl border border-green-100">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <Sprout className="w-5 h-5 text-green-600" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Fertilizer Recommendation */}
+                <div className="bg-bone-50 border border-bone-300/80 rounded-xl p-4 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2 text-forest-900">
+                      <Sprout className="w-4 h-4 text-sage-600" />
+                      <h4 className="font-bold text-xs uppercase tracking-wide">
+                        Preskripsi Pemupukan
+                      </h4>
                     </div>
-                    <h3 className="font-semibold text-gray-900">
-                      Rekomendasi Pemupukan
-                    </h3>
+                    <p className="text-xs text-forest-800 leading-relaxed font-medium">
+                      {rekomendasiPemupukan[result.fase]}
+                    </p>
                   </div>
-                  <p className="text-gray-700 leading-relaxed">
-                    {rekomendasiPemupukan[result.fase]}
-                  </p>
-                  <div className="mt-4 pt-4 border-t border-green-200">
-                    <div className="flex items-center gap-2 text-sm text-green-700">
-                      <Thermometer className="w-4 h-4" />
-                      <span>Optimalkan sesuai fase pertumbuhan</span>
-                    </div>
+                  <div className="mt-3 pt-2.5 border-t border-bone-200 text-[11px] text-sage-700 flex items-center gap-1">
+                    <Thermometer className="w-3.5 h-3.5 text-sage-500" />
+                    <span>Dosis disesuaikan dengan kondisi tanah</span>
                   </div>
                 </div>
 
-                {/* Hama Card */}
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-5 rounded-xl border border-amber-100">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-amber-100 rounded-lg">
-                      <Shield className="w-5 h-5 text-amber-600" />
+                {/* Pest Control Recommendation */}
+                <div className="bg-bone-50 border border-bone-300/80 rounded-xl p-4 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2 text-forest-900">
+                      <Shield className="w-4 h-4 text-clay-600" />
+                      <h4 className="font-bold text-xs uppercase tracking-wide">
+                        Proteksi & Hama Kunci
+                      </h4>
                     </div>
-                    <h3 className="font-semibold text-gray-900">
-                      Penanganan Hama
-                    </h3>
+                    <p className="text-xs text-forest-800 leading-relaxed font-medium">
+                      {rekomendasiHama[result.fase]}
+                    </p>
                   </div>
-                  <p className="text-gray-700 leading-relaxed">
-                    {rekomendasiHama[result.fase]}
-                  </p>
-                  <div className="mt-4 pt-4 border-t border-amber-200">
-                    <div className="flex items-center gap-2 text-sm text-amber-700">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span>Lakukan monitoring rutin</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Info */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <h4 className="font-medium text-gray-900 mb-3">
-                  Tindakan Tambahan
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                    <Droplets className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm text-gray-700">
-                      Kelola irigasi sesuai fase
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
-                    <Leaf className="w-4 h-4 text-purple-600" />
-                    <span className="text-sm text-gray-700">
-                      Pantau kondisi daun secara rutin
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-cyan-50 rounded-lg">
-                    <CheckCircle className="w-4 h-4 text-cyan-600" />
-                    <span className="text-sm text-gray-700">
-                      Catat perkembangan harian
-                    </span>
+                  <div className="mt-3 pt-2.5 border-t border-bone-200 text-[11px] text-sage-700 flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5 text-wheat-600" />
+                    <span>Pantau berkala setiap 3 hari</span>
                   </div>
                 </div>
               </div>
             </div>
           )}
-
-          {/* Empty Result State */}
-          {!result?.fase && (
-            <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Camera className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Belum Ada Hasil Analisis
-              </h3>
-              <p className="text-gray-600 max-w-md mx-auto">
-                Upload gambar lahan padi untuk mendapatkan analisis fase
-                pertumbuhan dan rekomendasi perawatan
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Footer Info */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-xl border border-blue-100">
-          <div className="flex items-center gap-3 mb-3">
-            <Zap className="w-5 h-5 text-blue-600" />
-            <h4 className="font-semibold text-gray-900">AI Powered</h4>
-          </div>
-          <p className="text-sm text-gray-600">
-            Menggunakan teknologi computer vision untuk deteksi akurat fase
-            pertumbuhan
-          </p>
-        </div>
-
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
-          <div className="flex items-center gap-3 mb-3">
-            <Leaf className="w-5 h-5 text-green-600" />
-            <h4 className="font-semibold text-gray-900">Rekomendasi Tepat</h4>
-          </div>
-          <p className="text-sm text-gray-600">
-            Dapatkan panduan pemupukan dan penanganan hama yang sesuai dengan
-            fase tanaman
-          </p>
-        </div>
-
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl border border-amber-100">
-          <div className="flex items-center gap-3 mb-3">
-            <CheckCircle className="w-5 h-5 text-amber-600" />
-            <h4 className="font-semibold text-gray-900">Real-time Analysis</h4>
-          </div>
-          <p className="text-sm text-gray-600">
-            Hasil deteksi langsung dengan rekomendasi yang dapat segera
-            diterapkan
-          </p>
         </div>
       </div>
     </div>
   );
 }
+

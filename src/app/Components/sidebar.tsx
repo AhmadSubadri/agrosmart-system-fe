@@ -1,12 +1,5 @@
 "use client";
 
-import { MdDashboard } from "react-icons/md";
-import { Ri24HoursLine } from "react-icons/ri";
-import { PiPlantFill } from "react-icons/pi";
-import { MdOutlineSensors } from "react-icons/md";
-import { CgProfile } from "react-icons/cg";
-import { IoChatbubbleSharp } from "react-icons/io5";
-import { FaLocationDot } from "react-icons/fa6";
 import {
   Leaf,
   Activity,
@@ -19,6 +12,7 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,6 +20,8 @@ import { usePathname } from "next/navigation";
 interface SidebarProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  mobileOpen?: boolean;
+  setMobileOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   activePage: string;
   setActivePage: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -33,6 +29,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({
   open,
   setOpen,
+  mobileOpen = false,
+  setMobileOpen,
   activePage,
   setActivePage,
 }) => {
@@ -49,211 +47,193 @@ const Sidebar: React.FC<SidebarProps> = ({
       title: "Realtime",
       path: "/realtime",
       icon: <Activity className="w-5 h-5" />,
-      description: "Data real-time",
+      description: "Data telemetri",
     },
     {
       title: "Riwayat",
       path: "/riwayat",
       icon: <Clock className="w-5 h-5" />,
-      description: "Histori data",
+      description: "Histori & grafik",
     },
     {
       title: "Lahan",
       path: "/lahan",
       icon: <MapPin className="w-5 h-5" />,
-      description: "Manajemen lahan",
-      spacing: true,
+      description: "Manajemen area lahan",
+      category: "Manajemen Agronomi",
     },
     {
       title: "Tanaman",
       path: "/plant",
       icon: <Sprout className="w-5 h-5" />,
-      description: "Data tanaman",
+      description: "Katalog & komoditas",
     },
     {
       title: "Sensor",
       path: "/sensor",
       icon: <Radio className="w-5 h-5" />,
-      description: "Manajemen sensor",
+      description: "Node IoT & status",
     },
     {
       title: "Chatbot",
       path: "/chatbot",
       icon: <MessageSquare className="w-5 h-5" />,
-      description: "Asisten AI",
-      spacing: true,
+      description: "Konsultasi cerdas tani",
+      category: "Fitur Cerdas AI",
     },
     {
       title: "Deteksi Fase Padi",
       path: "/deteksi-fase-padi",
       icon: <Leaf className="w-5 h-5" />,
-      description: "Analisis tanaman padi",
+      description: "Analisis citra tanaman",
     },
   ];
 
-  const currentPage =
-    Menus.find((menu) => menu.path === pathname)?.title || "Dashboard";
+  const isCurrentPage = (path: string) => {
+    if (path === "/dashboard") return pathname === "/dashboard";
+    return pathname.startsWith(path);
+  };
 
   return (
-    <div
-      className={`${
-        open ? "w-64" : "w-20"
-      } h-screen bg-gradient-to-b from-gray-900 to-gray-800 shadow-2xl transition-all duration-300 ease-in-out flex flex-col fixed top-0 left-0 z-50 border-r border-gray-700`}
+    <aside
+      className={`
+        fixed top-0 bottom-0 left-0 z-50 flex flex-col
+        bg-forest-900 text-bone-100 border-r border-forest-700/80 shadow-2xl
+        transition-all duration-300 ease-in-out
+        ${/* Mobile classes */ ""}
+        ${mobileOpen ? "translate-x-0 w-72" : "-translate-x-full"}
+        ${/* Desktop classes */ ""}
+        lg:translate-x-0 ${open ? "lg:w-64" : "lg:w-20"}
+      `}
     >
-      {/* Header */}
-      <div className="p-6 border-b border-gray-700 flex items-center justify-between">
-        {open ? (
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center mr-3">
-                <Home className="w-4 h-4 text-white" />
-              </div>
-              <h1 className="text-xl font-bold text-white">KawalTani</h1>
-            </div>
-            <button
-              onClick={() => setOpen(false)}
-              className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-400" />
-            </button>
+      {/* Header / Brand */}
+      <div className="h-18 px-4 py-4 border-b border-forest-800 flex items-center justify-between">
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className="w-10 h-10 rounded-xl bg-sage-500/20 border border-sage-400/30 flex items-center justify-center flex-shrink-0 text-sage-300">
+            <Sprout className="w-5 h-5 text-wheat-400" />
           </div>
-        ) : (
-          <div className="flex flex-col items-center w-full">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center mb-2">
-              <Home className="w-5 h-5 text-white" />
+          {(open || mobileOpen) && (
+            <div className="flex flex-col min-w-0">
+              <span className="font-bold text-base text-bone-50 tracking-tight flex items-center gap-1.5">
+                KawalTani <span className="text-[10px] px-1.5 py-0.5 rounded bg-sage-700/60 text-sage-200 uppercase font-semibold">Pro</span>
+              </span>
+              <span className="text-xs text-sage-300/80 truncate">Smart Agriculture</span>
             </div>
-            <button
-              onClick={() => setOpen(true)}
-              className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-400" />
-            </button>
-          </div>
+          )}
+        </div>
+
+        {/* Desktop Collapse Toggle */}
+        <button
+          onClick={() => setOpen(!open)}
+          className="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg text-sage-300 hover:text-white hover:bg-forest-800 transition-colors"
+          title={open ? "Perkecil Menu" : "Perluas Menu"}
+        >
+          {open ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        </button>
+
+        {/* Mobile Close Button */}
+        {setMobileOpen && (
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="lg:hidden p-1.5 rounded-lg text-sage-300 hover:text-white hover:bg-forest-800"
+          >
+            <X className="w-5 h-5" />
+          </button>
         )}
       </div>
 
-      {/* Menu Items */}
-      <div className="flex-grow py-6 overflow-y-auto">
-        <ul className="space-y-1 px-3">
-          {Menus.map((menu, index) => (
-            <li key={index}>
-              {menu.spacing && (
+      {/* Navigation Links */}
+      <div className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
+        {Menus.map((menu, index) => {
+          const active = isCurrentPage(menu.path);
+          return (
+            <div key={index}>
+              {menu.category && (open || mobileOpen) && (
+                <div className="px-3 pt-4 pb-1 text-[11px] font-semibold text-sage-400/70 tracking-wider uppercase">
+                  {menu.category}
+                </div>
+              )}
+              {menu.category && !open && !mobileOpen && (
+                <div className="my-2 border-t border-forest-800" />
+              )}
+
+              <Link
+                href={menu.path}
+                onClick={() => {
+                  setActivePage(menu.title);
+                  if (setMobileOpen) setMobileOpen(false);
+                }}
+                className={`
+                  group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative
+                  ${
+                    active
+                      ? "bg-sage-600/30 text-wheat-200 border border-sage-500/40 shadow-sm"
+                      : "text-bone-200/80 hover:bg-forest-800/80 hover:text-bone-50"
+                  }
+                  ${!open && !mobileOpen ? "justify-center px-0" : ""}
+                `}
+                title={!open && !mobileOpen ? menu.title : undefined}
+              >
+                {/* Active Indicator Bar */}
+                {active && (
+                  <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-wheat-400" />
+                )}
+
                 <div
-                  className={`${open ? "px-4 py-2" : "py-2"} ${
-                    !open && "hidden"
+                  className={`flex-shrink-0 transition-colors ${
+                    active ? "text-wheat-300" : "text-sage-400 group-hover:text-sage-200"
                   }`}
                 >
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    {menu.spacing && "Manajemen"}
-                  </span>
+                  {menu.icon}
                 </div>
-              )}
-              <Link href={menu.path} passHref>
-                <div
-                  className={`flex items-center p-3 rounded-xl transition-all duration-200 group cursor-pointer ${
-                    currentPage === menu.title
-                      ? "bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-l-4 border-blue-500"
-                      : "hover:bg-gray-700/50"
-                  } ${!open && "justify-center"}`}
-                  onClick={() => setActivePage(menu.title)}
-                >
-                  <div className={`flex items-center ${open ? "w-full" : ""}`}>
-                    <div
-                      className={`flex items-center justify-center ${
-                        currentPage === menu.title
-                          ? "text-blue-400"
-                          : "text-gray-400"
-                      } group-hover:text-white transition-colors`}
-                    >
-                      {menu.icon}
-                    </div>
-                    {open && (
-                      <div className="ml-4 flex-1">
-                        <span
-                          className={`font-medium ${
-                            currentPage === menu.title
-                              ? "text-white"
-                              : "text-gray-300"
-                          } group-hover:text-white transition-colors`}
-                        >
-                          {menu.title}
-                        </span>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          {menu.description}
-                        </p>
-                      </div>
-                    )}
+
+                {(open || mobileOpen) && (
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    <span className="truncate leading-snug">{menu.title}</span>
+                    <span className="text-[11px] text-sage-400/70 truncate group-hover:text-sage-300/80 font-normal">
+                      {menu.description}
+                    </span>
                   </div>
-                  {currentPage === menu.title && open && (
-                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                  )}
-                </div>
+                )}
               </Link>
-            </li>
-          ))}
-        </ul>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Profile Section */}
-      <div className="border-t border-gray-700 p-4">
-        <Link href="/profil" passHref>
-          <div
-            className={`flex items-center p-3 rounded-xl transition-all duration-200 cursor-pointer ${
-              activePage === "Profil"
-                ? "bg-gradient-to-r from-blue-500/20 to-indigo-500/20"
-                : "hover:bg-gray-700/50"
-            } ${!open && "justify-center"}`}
-            onClick={() => setActivePage("Profil")}
-          >
-            <div className={`flex items-center ${open ? "w-full" : ""}`}>
-              <div
-                className={`flex items-center justify-center ${
-                  activePage === "Profil" ? "text-blue-400" : "text-gray-400"
-                } hover:text-white transition-colors`}
-              >
-                <User className="w-5 h-5" />
-              </div>
-              {open && (
-                <div className="ml-4 flex-1">
-                  <span
-                    className={`font-medium ${
-                      activePage === "Profil" ? "text-white" : "text-gray-300"
-                    } hover:text-white transition-colors`}
-                  >
-                    Profil
-                  </span>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Kelola akun Anda
-                  </p>
-                </div>
-              )}
-            </div>
-            {activePage === "Profil" && open && (
-              <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-            )}
+      {/* User / Profile footer */}
+      <div className="p-3 border-t border-forest-800/80 bg-forest-950/40">
+        <Link
+          href="/profil"
+          onClick={() => {
+            setActivePage("Profil");
+            if (setMobileOpen) setMobileOpen(false);
+          }}
+          className={`
+            flex items-center gap-3 p-2.5 rounded-xl transition-colors
+            ${
+              pathname.startsWith("/profil")
+                ? "bg-sage-600/30 text-wheat-200 border border-sage-500/40"
+                : "text-bone-200/80 hover:bg-forest-800/80 hover:text-bone-50"
+            }
+            ${!open && !mobileOpen ? "justify-center" : ""}
+          `}
+          title={!open && !mobileOpen ? "Profil Akun" : undefined}
+        >
+          <div className="w-8 h-8 rounded-lg bg-clay-500/30 border border-clay-400/40 flex items-center justify-center text-wheat-300 flex-shrink-0">
+            <User className="w-4 h-4" />
           </div>
+          {(open || mobileOpen) && (
+            <div className="flex-1 min-w-0 flex flex-col">
+              <span className="text-xs font-semibold text-bone-100 truncate">Pengaturan Akun</span>
+              <span className="text-[11px] text-sage-400/80 truncate">Kelola profil & sistem</span>
+            </div>
+          )}
         </Link>
       </div>
-
-      {/* Toggle Hint */}
-      {!open && (
-        <div className="absolute bottom-20 left-0 right-0 flex justify-center">
-          <div className="bg-gray-800 text-gray-400 text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-            Klik untuk memperluas
-          </div>
-        </div>
-      )}
-
-      {/* Version */}
-      {open && (
-        <div className="px-4 py-3 border-t border-gray-700">
-          <p className="text-xs text-gray-500 text-center">
-            v1.0.0 • KawalTani System
-          </p>
-        </div>
-      )}
-    </div>
+    </aside>
   );
 };
 
 export default Sidebar;
+
