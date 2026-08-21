@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Upload,
   RefreshCw,
@@ -17,6 +18,8 @@ import {
   Camera,
   Sparkles,
   Info,
+  MessageSquare,
+  Sparkle,
 } from "lucide-react";
 
 /* ================= TYPES ================= */
@@ -24,6 +27,10 @@ type FaseKey = "fase_v1" | "fase_v2" | "fase_g1" | "fase_g2";
 
 type ResultType = {
   fase?: FaseKey;
+  confidence?: number;
+  estimasi_hst?: string;
+  ciri_visual?: string;
+  kondisi_tanaman?: string;
   error?: string;
 };
 
@@ -119,16 +126,30 @@ export default function DeteksiFasePage() {
     formData.append("file", image);
 
     try {
-      const res = await fetch(`${API_DETEKSI_FASE}/deteksi-fase/`, {
+      // 1. First try Next.js internal API route with Vision AI
+      let res = await fetch("/api/deteksi-fase", {
         method: "POST",
         body: formData,
       });
+
+      // 2. Fallback to external microservice if internal route not ready
+      if (!res.ok) {
+        res = await fetch(`${API_DETEKSI_FASE}/deteksi-fase/`, {
+          method: "POST",
+          body: formData,
+        });
+      }
+
       const data = await res.json();
-      setResult(data);
-      if (data.fase) setActiveFase(data.fase);
+      if (data.error) {
+        setResult({ error: data.error });
+      } else {
+        setResult(data);
+        if (data.fase) setActiveFase(data.fase);
+      }
     } catch {
       setResult({
-        error: "Gagal terhubung ke layanan AI deteksi fase. Pastikan backend deteksi fase aktif.",
+        error: "Gagal memproses analisis citra fase padi. Pastikan format gambar JPG/PNG valid.",
       });
     } finally {
       setLoading(false);
@@ -278,17 +299,55 @@ export default function DeteksiFasePage() {
               }`}
             >
               {preview ? (
-                <div className="relative w-full h-full p-2">
+                <div className="relative w-full h-full p-2 flex items-center justify-center">
                   <img
                     src={preview}
                     alt="Preview Lahan"
                     className="w-full h-full object-contain rounded-xl"
                   />
-                  <div className="absolute top-4 right-4">
-                    <span className="px-3 py-1 bg-forest-900/90 backdrop-blur-sm text-wheat-300 text-xs font-semibold rounded-full shadow-sm">
-                      Citra Siap Dianalisis
+
+                  {/* Status Badge */}
+                  <div className="absolute top-4 right-4 z-20">
+                    <span
+                      className={`px-3 py-1 text-xs font-semibold rounded-full shadow-sm flex items-center gap-1.5 backdrop-blur-md ${
+                        loading
+                          ? "bg-forest-950/80 text-wheat-300 border border-sage-400/40"
+                          : "bg-forest-900/90 text-wheat-300"
+                      }`}
+                    >
+                      {loading ? (
+                        <>
+                          <span className="w-2 h-2 rounded-full bg-sage-400 animate-ping" />
+                          <span>Memindai Citra...</span>
+                        </>
+                      ) : (
+                        <span>Citra Siap Dianalisis</span>
+                      )}
                     </span>
                   </div>
+
+                  {/* Laser Scanning Animation Overlay */}
+                  {loading && (
+                    <div className="absolute inset-2 rounded-xl overflow-hidden pointer-events-none z-10">
+                      {/* Grid overlay */}
+                      <div className="absolute inset-0 bg-[radial-gradient(#7A9471_1.5px,transparent_1.5px)] [background-size:20px_20px] opacity-30" />
+
+                      {/* Corner Target Brackets */}
+                      <div className="absolute top-2 left-2 w-5 h-5 border-t-2 border-l-2 border-sage-400 rounded-tl-sm animate-pulse" />
+                      <div className="absolute top-2 right-2 w-5 h-5 border-t-2 border-r-2 border-sage-400 rounded-tr-sm animate-pulse" />
+                      <div className="absolute bottom-2 left-2 w-5 h-5 border-b-2 border-l-2 border-sage-400 rounded-bl-sm animate-pulse" />
+                      <div className="absolute bottom-2 right-2 w-5 h-5 border-b-2 border-r-2 border-sage-400 rounded-br-sm animate-pulse" />
+
+                      {/* Moving Laser Beam */}
+                      <div className="animate-laser-scan h-1 bg-gradient-to-r from-transparent via-sage-300 to-transparent shadow-[0_0_16px_#A5D6A7]" />
+
+                      {/* Center Scanning Badge */}
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3.5 py-1.5 bg-forest-950/85 backdrop-blur-md border border-sage-500/40 rounded-full text-[11px] font-semibold text-wheat-200 shadow-lg flex items-center gap-2">
+                        <Sparkles className="w-3.5 h-3.5 text-sage-400 animate-spin" />
+                        <span>Menganalisis Morfologi &amp; Kanopi Padi...</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <label className="cursor-pointer flex flex-col items-center justify-center p-6 text-center w-full h-full">
@@ -363,20 +422,44 @@ export default function DeteksiFasePage() {
 
           {/* ================= RESULTS SECTION ================= */}
           {result?.fase && (
-            <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6 space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-bone-200">
+            <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6 space-y-5 animate-in fade-in-50 duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-bone-200">
                 <div>
-                  <h3 className="font-bold text-forest-900 text-base">Hasil Diagnosis AI</h3>
-                  <p className="text-xs text-sage-700">Fase pertumbuhan tanaman teridentifikasi</p>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-sage-600" />
+                    <h3 className="font-extrabold text-forest-900 text-base">Hasil Diagnosis Fase Padi</h3>
+                  </div>
+                  <p className="text-xs text-sage-700 mt-0.5">Analisis morfologi kanopi tanaman terdeteksi</p>
                 </div>
-                <span className="px-3.5 py-1.5 bg-forest-900 text-wheat-300 font-extrabold text-sm rounded-full border border-forest-800">
-                  {getFaseLabel(result.fase)}
-                </span>
+
+                <div className="flex items-center gap-2">
+                  {result.confidence && (
+                    <span className="px-2.5 py-1 bg-sage-100 border border-sage-200 text-forest-900 font-bold text-xs rounded-lg">
+                      {result.confidence}% Akurasi
+                    </span>
+                  )}
+                  <span className="px-3.5 py-1.5 bg-forest-900 text-wheat-300 font-extrabold text-sm rounded-xl border border-forest-800 shadow-2xs">
+                    {getFaseLabel(result.fase)}
+                  </span>
+                </div>
               </div>
+
+              {/* Visual Features Analysis */}
+              {result.ciri_visual && (
+                <div className="p-3.5 rounded-xl bg-bone-50/80 border border-bone-200 text-xs">
+                  <div className="flex items-center gap-2 font-bold text-forest-900 mb-1">
+                    <Leaf className="w-3.5 h-3.5 text-sage-600" />
+                    <span>Karakteristik Visual Terdeteksi:</span>
+                  </div>
+                  <p className="text-forest-800 leading-relaxed pl-5">
+                    {result.ciri_visual} {result.estimasi_hst ? `(Estimasi umur: ${result.estimasi_hst})` : ""}
+                  </p>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Fertilizer Recommendation */}
-                <div className="bg-bone-50 border border-bone-300/80 rounded-xl p-4 flex flex-col justify-between">
+                <div className="bg-bone-50/60 border border-bone-300/80 rounded-xl p-4 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-2 mb-2 text-forest-900">
                       <Sprout className="w-4 h-4 text-sage-600" />
@@ -395,12 +478,12 @@ export default function DeteksiFasePage() {
                 </div>
 
                 {/* Pest Control Recommendation */}
-                <div className="bg-bone-50 border border-bone-300/80 rounded-xl p-4 flex flex-col justify-between">
+                <div className="bg-bone-50/60 border border-bone-300/80 rounded-xl p-4 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-2 mb-2 text-forest-900">
                       <Shield className="w-4 h-4 text-clay-600" />
                       <h4 className="font-bold text-xs uppercase tracking-wide">
-                        Proteksi & Hama Kunci
+                        Proteksi &amp; Hama Kunci
                       </h4>
                     </div>
                     <p className="text-xs text-forest-800 leading-relaxed font-medium">
@@ -412,6 +495,26 @@ export default function DeteksiFasePage() {
                     <span>Pantau berkala setiap 3 hari</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Chatbot CTA Link */}
+              <div className="pt-2 border-t border-bone-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p className="text-xs text-sage-700">
+                  Ingin konsultasi dosis pupuk atau pencegahan hama lebih mendalam berdasarkan fase ini?
+                </p>
+                <Link
+                  href={`/chatbot?prompt=${encodeURIComponent(
+                    `Halo KawalTani, saya baru saja melakukan deteksi citra fase padi dan tanaman teridentifikasi berada pada ${getFaseLabel(
+                      result.fase
+                    )} (Estimasi: ${result.estimasi_hst || "0-35 HST"}). Karakteristik visual yang terdeteksi: "${
+                      result.ciri_visual || ""
+                    }". Mohon berikan panduan detail mengenai kebutuhan pupuk, pengaturan ketinggian air sawah, serta antisipasi hama utama pada fase ini.`
+                  )}`}
+                  className="px-4 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-wheat-300 text-xs font-bold transition-all shadow-2xs flex items-center gap-2 whitespace-nowrap active:scale-[0.98]"
+                >
+                  <MessageSquare className="w-4 h-4 text-wheat-300" />
+                  <span>Konsultasikan ke Chatbot AI</span>
+                </Link>
               </div>
             </div>
           )}

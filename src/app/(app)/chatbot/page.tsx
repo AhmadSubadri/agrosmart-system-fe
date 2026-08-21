@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import RiwayatChat from "./riwayat-chat/riwayatChat";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -23,7 +23,7 @@ import {
 
 type Message = { role: "user" | "bot"; text: string; time?: string };
 
-export default function ChatbotPage() {
+function ChatbotContent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [selectedChatTitle, setSelectedChatTitle] = useState<string | null>(
@@ -36,7 +36,9 @@ export default function ChatbotPage() {
   const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const promptSentRef = useRef(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   /* ================== AUTH CHECK ================== */
@@ -161,6 +163,21 @@ export default function ChatbotPage() {
       setIsLoading(false);
     }
   };
+
+  /* ================== AUTO PROCESS INCOMING PROMPT ================== */
+  useEffect(() => {
+    const promptParam = searchParams.get("prompt");
+    if (
+      promptParam &&
+      isUserLoggedIn &&
+      !promptSentRef.current &&
+      messages.length === 0 &&
+      !isLoading
+    ) {
+      promptSentRef.current = true;
+      handleSend(promptParam);
+    }
+  }, [searchParams, isUserLoggedIn, messages.length, isLoading]);
 
   /* ================== COPY TO CLIPBOARD ================== */
   const handleCopy = (text: string, idx: number) => {
@@ -578,6 +595,21 @@ export default function ChatbotPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ChatbotPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-8 text-center text-sage-700 flex flex-col items-center justify-center min-h-[300px]">
+          <RefreshCw className="w-6 h-6 animate-spin text-forest-800 mb-2" />
+          <p className="text-xs font-semibold">Memuat Asisten AI KawalTani...</p>
+        </div>
+      }
+    >
+      <ChatbotContent />
+    </Suspense>
   );
 }
 
