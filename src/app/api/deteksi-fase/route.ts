@@ -126,6 +126,16 @@ export async function POST(req: NextRequest) {
     const baseUrl =
       process.env.OPENAI_BASE_URL || "https://api.groq.com/openai/v1";
 
+    if (!apiKey) {
+      return NextResponse.json(
+        {
+          error:
+            "Kunci API AI (GROQ_API_KEY) belum dikonfigurasi di Environment Variables Vercel/Server.",
+        },
+        { status: 500 }
+      );
+    }
+
     let aiResult: any = null;
 
     // Call Groq Vision Model (Qwen 3.8 27B Vision with Multimodal Capability)
