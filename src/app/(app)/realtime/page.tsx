@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Site from "../../Components/dropdownSite";
 import SensorRealtime from "../../Components/sensorRealtime";
 import Map from "../../Components/map";
+import RealtimeStreamingChart from "../../Components/realtime/RealtimeStreamingChart";
 import {
   AlertTriangle,
   Clock,
@@ -221,6 +222,32 @@ export default function Realtime() {
       totalPlots: data.soil_temp.length,
     };
   }, [data]);
+
+  // Active plot values for the Realtime Streaming Chart
+  const activePlotData = useMemo(() => {
+    if (!data) return null;
+    if (selectedPlotIndex === -1) {
+      return {
+        nitrogen: data.nitrogen?.[0]?.read_value ? Number(data.nitrogen[0].read_value) : 140,
+        fosfor: data.fosfor?.[0]?.read_value ? Number(data.fosfor[0].read_value) : 367,
+        kalium: data.kalium?.[0]?.read_value ? Number(data.kalium[0].read_value) : 362,
+        ph: fieldAverages?.avgPh || 6.4,
+        temp: fieldAverages?.avgTemp || 27.8,
+        hum: fieldAverages?.avgHum || 65.8,
+        ec: fieldAverages?.avgEc || 844,
+      };
+    }
+    const idx = Math.max(0, selectedPlotIndex);
+    return {
+      nitrogen: data.nitrogen?.[idx]?.read_value ? Number(data.nitrogen[idx].read_value) : 140,
+      fosfor: data.fosfor?.[idx]?.read_value ? Number(data.fosfor[idx].read_value) : 367,
+      kalium: data.kalium?.[idx]?.read_value ? Number(data.kalium[idx].read_value) : 362,
+      ph: data.soil_ph?.[idx]?.read_value ? Number(data.soil_ph[idx].read_value) : 6.4,
+      temp: data.soil_temp?.[idx]?.read_value ? Number(data.soil_temp[idx].read_value) : 27.8,
+      hum: data.soil_hum?.[idx]?.read_value ? Number(data.soil_hum[idx].read_value) : 65.8,
+      ec: data.ec?.[idx]?.read_value ? Number(data.ec[idx].read_value) : 844,
+    };
+  }, [data, selectedPlotIndex, fieldAverages]);
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -469,6 +496,20 @@ export default function Realtime() {
           )}
         </div>
       </div>
+
+      {/* Realtime Live Telemetry Streaming Chart */}
+      <RealtimeStreamingChart
+        activePlotIndex={selectedPlotIndex}
+        nitrogenVal={activePlotData?.nitrogen}
+        fosforVal={activePlotData?.fosfor}
+        kaliumVal={activePlotData?.kalium}
+        phVal={activePlotData?.ph}
+        tempVal={activePlotData?.temp}
+        humVal={activePlotData?.hum}
+        ecVal={activePlotData?.ec}
+        lastUpdated={data?.last_updated}
+        isLiveActive={isAutoSync}
+      />
 
       {/* Sensor Realtime Matrix */}
       <div className="bg-white border border-bone-300 rounded-xl shadow-2xs p-3.5 sm:p-4">

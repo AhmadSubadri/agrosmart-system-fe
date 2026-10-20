@@ -584,6 +584,7 @@ export default function Dashboard() {
 
       {/* 24-Hour Telemetry Trend Chart */}
       <TelemetryTrendChart
+        siteId={siteId}
         nitrogen={data.nitrogen?.[0]?.read_value ? Number(data.nitrogen[0].read_value) : undefined}
         fosfor={data.fosfor?.[0]?.read_value ? Number(data.fosfor[0].read_value) : undefined}
         kalium={data.kalium?.[0]?.read_value ? Number(data.kalium[0].read_value) : undefined}
