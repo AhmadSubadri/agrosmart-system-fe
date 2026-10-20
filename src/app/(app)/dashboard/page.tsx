@@ -117,6 +117,7 @@ export default function Dashboard() {
     todos: [],
   });
   const [actionMessages, setActionMessages] = useState<ActionMessage[]>([]);
+  const [selectedPlotIndex, setSelectedPlotIndex] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
@@ -371,23 +372,23 @@ export default function Dashboard() {
       />
 
       {/* Top Grid: Interactive Map & Plant Information */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
         {/* Map Section */}
-        <div className="lg:col-span-7 bg-white border border-bone-300 rounded-2xl shadow-soft overflow-hidden flex flex-col">
-          <div className="p-4 sm:p-5 border-b border-bone-200 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-forest-50 border border-forest-100 flex items-center justify-center text-forest-700">
-                <MapPin className="w-4 h-4" />
+        <div className="lg:col-span-7 bg-white border border-bone-300 rounded-xl shadow-2xs overflow-hidden flex flex-col">
+          <div className="p-3 sm:p-3.5 border-b border-bone-200 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-forest-50 border border-forest-100 flex items-center justify-center text-forest-700">
+                <MapPin className="w-3.5 h-3.5" />
               </div>
               <div>
-                <h3 className="font-bold text-forest-900 text-base">Peta Digital Twin Lahan</h3>
-                <p className="text-xs text-sage-700">Visualisasi tata letak sensor & plot tanah</p>
+                <h3 className="font-bold text-forest-900 text-sm">Peta Digital Twin Lahan</h3>
+                <p className="text-[11px] text-sage-600">Visualisasi tata letak sensor & plot tanah</p>
               </div>
             </div>
             <FloatingGallery />
           </div>
 
-          <div className="h-[320px] sm:h-[360px] relative bg-bone-100">
+          <div className="h-[250px] sm:h-[280px] relative bg-bone-100">
             <Map
               image={mapImageUrl ?? undefined}
               alt={
@@ -400,76 +401,76 @@ export default function Dashboard() {
         </div>
 
         {/* Plant Overview Section */}
-        <div className="lg:col-span-5 bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-bone-200">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-sage-50 border border-sage-100 flex items-center justify-center text-sage-600">
-                <Leaf className="w-4 h-4" />
+        <div className="lg:col-span-5 bg-white border border-bone-300 rounded-xl shadow-2xs p-3 sm:p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-bone-200">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-sage-50 border border-sage-100 flex items-center justify-center text-sage-600">
+                <Leaf className="w-3.5 h-3.5" />
               </div>
               <div>
-                <h3 className="font-bold text-forest-900 text-base">Data Agronomi Tanaman</h3>
-                <p className="text-xs text-sage-700">Status pertumbuhan vegetatif saat ini</p>
+                <h3 className="font-bold text-forest-900 text-sm">Data Agronomi Tanaman</h3>
+                <p className="text-[11px] text-sage-600">Status pertumbuhan vegetatif saat ini</p>
               </div>
             </div>
-            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-forest-900 text-wheat-300">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-forest-900 text-wheat-300">
               {currentPlant ? currentPlant.phase || "Aktif" : "Tidak Ada Data"}
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="p-3.5 rounded-xl bg-bone-50 border border-bone-200">
-              <span className="text-[11px] font-bold text-sage-700 uppercase tracking-wider block mb-1">
+          <div className="grid grid-cols-2 gap-2 mb-2.5">
+            <div className="p-2 sm:p-2.5 rounded-lg bg-bone-50 border border-bone-200">
+              <span className="text-[10px] font-bold text-sage-600 uppercase tracking-wider block mb-0.5">
                 Komoditas
               </span>
-              <span className="text-base sm:text-lg font-extrabold text-forest-900 block truncate">
+              <span className="text-sm sm:text-base font-extrabold text-forest-900 block truncate">
                 {currentPlant?.commodity || "Padi Sawah"}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-bone-50 border border-bone-200">
-              <span className="text-[11px] font-bold text-sage-700 uppercase tracking-wider block mb-1">
+            <div className="p-2 sm:p-2.5 rounded-lg bg-bone-50 border border-bone-200">
+              <span className="text-[10px] font-bold text-sage-600 uppercase tracking-wider block mb-0.5">
                 Varietas
               </span>
-              <span className="text-base sm:text-lg font-extrabold text-forest-900 block truncate">
+              <span className="text-sm sm:text-base font-extrabold text-forest-900 block truncate">
                 {currentPlant?.variety || "Ciherang / IR64"}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-bone-50 border border-bone-200">
-              <span className="text-[11px] font-bold text-sage-700 uppercase tracking-wider block mb-1">
+            <div className="p-2 sm:p-2.5 rounded-lg bg-bone-50 border border-bone-200">
+              <span className="text-[10px] font-bold text-sage-600 uppercase tracking-wider block mb-0.5">
                 Umur Tanaman
               </span>
-              <span className="text-base sm:text-lg font-extrabold text-forest-900 block">
+              <span className="text-sm sm:text-base font-extrabold text-forest-900 block">
                 {currentPlant?.age ? `${currentPlant.age} HST` : "-"}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-bone-50 border border-bone-200">
-              <span className="text-[11px] font-bold text-sage-700 uppercase tracking-wider block mb-1">
+            <div className="p-2 sm:p-2.5 rounded-lg bg-bone-50 border border-bone-200">
+              <span className="text-[10px] font-bold text-sage-600 uppercase tracking-wider block mb-0.5">
                 Tanggal Tanam
               </span>
-              <span className="text-sm sm:text-base font-bold text-forest-900 block truncate">
+              <span className="text-xs sm:text-sm font-bold text-forest-900 block truncate">
                 {currentPlant?.pl_date_planting || "-"}
               </span>
             </div>
           </div>
 
           {/* Harvest Countdown Banner */}
-          <div className="p-4 rounded-xl bg-gradient-to-r from-forest-900 to-forest-800 text-bone-100 flex items-center justify-between border border-forest-700 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-wheat-400/20 border border-wheat-400/30 flex items-center justify-center text-wheat-300">
-                <Wheat className="w-5 h-5" />
+          <div className="p-2.5 sm:p-3 rounded-lg bg-gradient-to-r from-forest-900 to-forest-800 text-bone-100 flex items-center justify-between border border-forest-700 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-wheat-400/20 border border-wheat-400/30 flex items-center justify-center text-wheat-300">
+                <Wheat className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs text-sage-300 font-medium block">Estimasi Waktu Panen</span>
-                <span className="text-lg font-extrabold text-wheat-300">
+                <span className="text-[11px] text-sage-300 font-medium block">Estimasi Waktu Panen</span>
+                <span className="text-sm sm:text-base font-extrabold text-wheat-300">
                   {currentPlant?.timeto_harvest
                     ? `${currentPlant.timeto_harvest} Hari Lagi`
                     : "Menunggu Jadwal"}
                 </span>
               </div>
             </div>
-            <span className="text-[10px] font-bold px-2 py-1 rounded bg-forest-950/60 text-sage-300 uppercase tracking-wider">
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-forest-950/60 text-sage-300 uppercase tracking-wider">
               Agronomi
             </span>
           </div>
@@ -487,25 +488,25 @@ export default function Dashboard() {
       />
 
       {/* Environmental Telemetry Row */}
-      <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6">
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-bone-200">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-wheat-100 border border-wheat-200 flex items-center justify-center text-wheat-700">
-              <CloudSun className="w-4 h-4" />
+      <div className="bg-white border border-bone-300 rounded-xl shadow-2xs p-3.5 sm:p-4">
+        <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-bone-200">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-wheat-100 border border-wheat-200 flex items-center justify-center text-wheat-700">
+              <CloudSun className="w-3.5 h-3.5" />
             </div>
             <div>
-              <h3 className="font-bold text-forest-900 text-base sm:text-lg">
+              <h3 className="font-bold text-forest-900 text-sm sm:text-base">
                 Stasiun Cuaca & Lingkungan Mikro
               </h3>
-              <p className="text-xs text-sage-700">Pemantauan iklim mikro sekitar tanaman</p>
+              <p className="text-[11px] text-sage-600">Pemantauan iklim mikro sekitar tanaman</p>
             </div>
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sage-100 border border-sage-200 text-forest-800">
+          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-sage-100 border border-sage-200 text-forest-800">
             Realtime
           </span>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2.5 sm:gap-3">
           <IndikatorSuhu suhu={data.temperature?.[0]?.read_value || 0} />
           <IndikatorKelembapan humid={data.humidity?.[0]?.read_value || 0} />
           <IndikatorAngin wind={data.wind?.[0]?.read_value || 0} />
@@ -527,45 +528,45 @@ export default function Dashboard() {
       />
 
       {/* Tasks & Agronomic Warnings Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
         {/* Farm Action Items / Tasks */}
-        <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-bone-200">
+        <div className="bg-white border border-bone-300 rounded-xl shadow-2xs p-3.5 sm:p-4 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3 pb-2 border-b border-bone-200">
             <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-forest-800" />
-              <h3 className="font-bold text-forest-900 text-base">Jadwal Pemupukan & Tugas Lahan</h3>
+              <Calendar className="w-4 h-4 text-forest-800" />
+              <h3 className="font-bold text-forest-900 text-sm">Jadwal Pemupukan & Tugas Lahan</h3>
             </div>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-sage-100 text-forest-800">
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-sage-100 text-forest-800">
               {data.todos?.length || 0} Tugas
             </span>
           </div>
 
-          <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
             {data.todos && data.todos.length > 0 ? (
               data.todos.map((todoGroup, groupIndex) =>
                 todoGroup.todos.map((todo, index) => (
                   <div
                     key={`${groupIndex}-${index}`}
-                    className="p-3.5 bg-bone-50 border border-bone-200 rounded-xl hover:border-sage-400 transition-colors flex items-center justify-between gap-3"
+                    className="p-2.5 bg-bone-50 border border-bone-200 rounded-lg hover:border-sage-400 transition-colors flex items-center justify-between gap-2"
                   >
                     <div>
-                      <h4 className="font-bold text-sm text-forest-900">
+                      <h4 className="font-bold text-xs text-forest-900">
                         {todo.hand_title}
                       </h4>
-                      <p className="text-xs text-sage-700 mt-0.5">
+                      <p className="text-[11px] text-sage-600 mt-0.5">
                         Jenis Pupuk: <span className="font-semibold text-forest-800">{todo.fertilizer_type}</span>
                       </p>
                     </div>
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-white border border-bone-300 text-forest-900 shadow-2xs whitespace-nowrap">
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-white border border-bone-300 text-forest-900 shadow-2xs whitespace-nowrap">
                       {todo.todo_date}
                     </span>
                   </div>
                 ))
               )
             ) : (
-              <div className="text-center py-8">
-                <CheckCircle2 className="w-10 h-10 text-sage-500 mx-auto mb-2 opacity-80" />
-                <p className="text-xs text-sage-700 font-medium">
+              <div className="text-center py-6">
+                <CheckCircle2 className="w-8 h-8 text-sage-500 mx-auto mb-1 opacity-80" />
+                <p className="text-[11px] text-sage-600 font-medium">
                   Tidak ada agenda pemupukan tertunda hari ini
                 </p>
               </div>
@@ -574,47 +575,47 @@ export default function Dashboard() {
         </div>
 
         {/* Warning / Alerts Feed */}
-        <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-bone-200">
+        <div className="bg-white border border-bone-300 rounded-xl shadow-2xs p-3.5 sm:p-4 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3 pb-2 border-b border-bone-200">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-clay-600" />
-              <h3 className="font-bold text-forest-900 text-base">Peringatan & Rekomendasi</h3>
+              <AlertTriangle className="w-4 h-4 text-clay-600" />
+              <h3 className="font-bold text-forest-900 text-sm">Peringatan & Rekomendasi</h3>
             </div>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-wheat-100 text-wheat-900 border border-wheat-200">
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-wheat-100 text-wheat-900 border border-wheat-200">
               {actionMessages.length} Peringatan
             </span>
           </div>
 
-          <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
             {actionMessages.length > 0 ? (
               actionMessages.map((msg, index) => {
                 const isDanger = msg.value_status === "Danger";
                 return (
                   <div
                     key={index}
-                    className={`p-3.5 rounded-xl border flex items-start gap-3 ${
+                    className={`p-2.5 rounded-lg border flex items-start gap-2 ${
                       isDanger
                         ? "bg-clay-50 border-clay-200 text-clay-900"
                         : "bg-wheat-50 border-wheat-200 text-wheat-900"
                     }`}
                   >
                     <div
-                      className={`p-1.5 rounded-lg mt-0.5 ${
+                      className={`p-1 rounded-md mt-0.5 ${
                         isDanger ? "bg-clay-100 text-clay-700" : "bg-wheat-100 text-wheat-700"
                       }`}
                     >
-                      <AlertTriangle className="w-4 h-4" />
+                      <AlertTriangle className="w-3.5 h-3.5" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="font-bold text-xs sm:text-sm truncate">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <h4 className="font-bold text-xs truncate">
                           {msg.status_message}
                         </h4>
-                        <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">
+                        <span className="text-[9px] font-bold uppercase tracking-wider opacity-80">
                           {msg.sensor_name}
                         </span>
                       </div>
-                      <p className="text-xs mt-1 font-medium opacity-90">
+                      <p className="text-[11px] mt-0.5 font-medium opacity-90">
                         Rekomendasi: {msg.action_message}
                       </p>
                     </div>
@@ -622,9 +623,9 @@ export default function Dashboard() {
                 );
               })
             ) : (
-              <div className="text-center py-8">
-                <CheckCircle className="w-10 h-10 text-sage-500 mx-auto mb-2 opacity-80" />
-                <p className="text-xs text-sage-700 font-medium">
+              <div className="text-center py-6">
+                <CheckCircle className="w-8 h-8 text-sage-500 mx-auto mb-1 opacity-80" />
+                <p className="text-[11px] text-sage-600 font-medium">
                   Semua parameter lahan dalam ambang batas optimal
                 </p>
               </div>
@@ -634,56 +635,99 @@ export default function Dashboard() {
       </div>
 
       {/* Soil Sensors Telemetry Section */}
-      <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6">
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-bone-200">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-forest-800 text-wheat-300 flex items-center justify-center font-bold">
-              <TrendingUp className="w-4 h-4" />
+      <div className="bg-white border border-bone-300 rounded-xl shadow-2xs p-3.5 sm:p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3 pb-2.5 border-b border-bone-200">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-forest-800 text-wheat-300 flex items-center justify-center font-bold">
+              <TrendingUp className="w-3.5 h-3.5" />
             </div>
             <div>
-              <h3 className="font-bold text-forest-900 text-base sm:text-lg">
+              <h3 className="font-bold text-forest-900 text-sm sm:text-base">
                 Monitoring Telemetri Sensor Tanah
               </h3>
-              <p className="text-xs text-sage-700">Data hara NPK dan pH per zona lahan</p>
+              <p className="text-[11px] text-sage-600">Data hara NPK dan pH per zona lahan</p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-xs font-semibold text-forest-800">
-            <span className="w-2 h-2 rounded-full bg-sage-500"></span>
-            <span>Live Stream</span>
+            <span className="w-2 h-2 rounded-full bg-sage-500 animate-pulse"></span>
+            <span className="text-[11px]">Live Stream</span>
           </div>
         </div>
 
         {data.soil_ph?.length ? (
-          <div className="space-y-4">
-            {data.soil_ph.map((sensor, index) => {
-              const nitrogen = data.nitrogen?.[index]?.read_value || 0;
-              const fosfor = data.fosfor?.[index]?.read_value || 0;
-              const kalium = data.kalium?.[index]?.read_value || 0;
-              const ph = sensor.read_value || 0;
+          <div>
+            {/* Plot / Zone Selector Bar */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 scrollbar-none">
+              {data.soil_ph.map((sensor, index) => {
+                const isSelected = selectedPlotIndex === index;
+                const isDanger = sensor.value_status === "Danger";
+                return (
+                  <button
+                    key={sensor.sensor}
+                    onClick={() => setSelectedPlotIndex(index)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap active:scale-[0.98] ${
+                      isSelected
+                        ? "bg-forest-900 text-wheat-300 shadow-2xs"
+                        : "bg-bone-100 hover:bg-bone-200 text-forest-800 border border-bone-200"
+                    }`}
+                  >
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        isDanger ? "bg-clay-500 animate-ping" : "bg-sage-500"
+                      }`}
+                    />
+                    <span>Plot Area {index + 1}</span>
+                  </button>
+                );
+              })}
+              <button
+                onClick={() => setSelectedPlotIndex(-1)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap active:scale-[0.98] ${
+                  selectedPlotIndex === -1
+                    ? "bg-forest-900 text-wheat-300 shadow-2xs"
+                    : "bg-bone-100 hover:bg-bone-200 text-forest-800 border border-bone-200"
+                }`}
+              >
+                <span>Semua Plot ({data.soil_ph.length})</span>
+              </button>
+            </div>
 
-              return (
-                <Realtime
-                  key={sensor.sensor}
-                  sensor={index + 1}
-                  nitrogen={Number(nitrogen)}
-                  fosfor={Number(fosfor)}
-                  kalium={Number(kalium)}
-                  ph={Number(ph)}
-                  statusPh={data.soil_ph?.[index]?.value_status ?? ""}
-                  statusNitrogen={data.nitrogen?.[index]?.value_status ?? ""}
-                  statusFosfor={data.fosfor?.[index]?.value_status ?? ""}
-                  statusKalium={data.kalium?.[index]?.value_status ?? "OK"}
-                />
-              );
-            })}
+            {/* Render selected plot or all plots */}
+            <div className="space-y-3">
+              {(selectedPlotIndex === -1
+                ? data.soil_ph
+                : data.soil_ph.filter((_, idx) => idx === selectedPlotIndex)
+              ).map((sensor, mapIndex) => {
+                const actualIndex = selectedPlotIndex === -1 ? mapIndex : selectedPlotIndex;
+                const nitrogen = data.nitrogen?.[actualIndex]?.read_value || 0;
+                const fosfor = data.fosfor?.[actualIndex]?.read_value || 0;
+                const kalium = data.kalium?.[actualIndex]?.read_value || 0;
+                const ph = sensor.read_value || 0;
+
+                return (
+                  <Realtime
+                    key={sensor.sensor}
+                    sensor={actualIndex + 1}
+                    nitrogen={Number(nitrogen)}
+                    fosfor={Number(fosfor)}
+                    kalium={Number(kalium)}
+                    ph={Number(ph)}
+                    statusPh={data.soil_ph?.[actualIndex]?.value_status ?? ""}
+                    statusNitrogen={data.nitrogen?.[actualIndex]?.value_status ?? ""}
+                    statusFosfor={data.fosfor?.[actualIndex]?.value_status ?? ""}
+                    statusKalium={data.kalium?.[actualIndex]?.value_status ?? "OK"}
+                  />
+                );
+              })}
+            </div>
           </div>
         ) : (
-          <div className="text-center py-12 bg-bone-50 rounded-2xl border border-bone-200">
-            <TrendingUp className="w-10 h-10 text-sage-400 mx-auto mb-2" />
-            <h4 className="text-sm font-bold text-forest-900 mb-1">
+          <div className="text-center py-8 bg-bone-50 rounded-xl border border-bone-200">
+            <TrendingUp className="w-8 h-8 text-sage-400 mx-auto mb-2" />
+            <h4 className="text-xs font-bold text-forest-900 mb-0.5">
               Data Sensor Belum Tersedia
             </h4>
-            <p className="text-xs text-sage-700">
+            <p className="text-[11px] text-sage-600">
               Pilih lokasi lahan yang memiliki node sensor aktif
             </p>
           </div>

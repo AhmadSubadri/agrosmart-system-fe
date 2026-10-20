@@ -128,91 +128,88 @@ export default function ExecutiveKpiCards({
   }, [temperature, humidity]);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {/* 1. Skor Kesehatan Lahan */}
-      <div className="bg-white border border-bone-300 rounded-2xl p-4 sm:p-5 shadow-soft hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-sage-100/40 rounded-bl-full pointer-events-none" />
+      <div className="bg-white border border-bone-300 rounded-xl p-3 sm:p-3.5 shadow-2xs hover:shadow-soft transition-all flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-sage-700">
-              Indeks Kesuburan Tanah
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-sage-700">
+              Kesuburan Tanah
             </span>
-            <div className="w-8 h-8 rounded-xl bg-forest-50 border border-forest-100 flex items-center justify-center text-forest-800">
-              <Sparkles className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-forest-50 border border-forest-100 flex items-center justify-center text-forest-800">
+              <Sparkles className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-extrabold text-forest-900 tracking-tight">
+          <div className="flex items-baseline gap-1.5 mb-0.5">
+            <span className="text-2xl font-black text-forest-900 tracking-tight">
               {soilHealth.score}
             </span>
-            <span className="text-xs font-bold text-sage-600">/ 100</span>
+            <span className="text-[11px] font-semibold text-sage-600">/100</span>
           </div>
-          <p className="text-xs text-sage-700 line-clamp-1">
-            pH {ph ? Number(ph).toFixed(1) : "6.5"} • NPK Seimbang
+          <p className="text-[11px] text-sage-700 truncate">
+            pH {ph ? Number(ph).toFixed(1) : "6.5"} • NPK Terkalibrasi
           </p>
         </div>
-        <div className="mt-4 pt-3 border-t border-bone-200 flex items-center justify-between">
+        <div className="mt-2.5 pt-2 border-t border-bone-200 flex items-center justify-between">
           <span
-            className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${soilHealth.color}`}
+            className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${soilHealth.color}`}
           >
             {soilHealth.label}
           </span>
-          <span className="text-[11px] text-sage-600 font-medium">Digital Twin</span>
+          <span className="text-[10px] text-sage-500 font-medium">Digital Twin</span>
         </div>
       </div>
 
       {/* 2. Status Irigasi & Ketersediaan Air */}
-      <div className="bg-white border border-bone-300 rounded-2xl p-4 sm:p-5 shadow-soft hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-wheat-100/40 rounded-bl-full pointer-events-none" />
+      <div className="bg-white border border-bone-300 rounded-xl p-3 sm:p-3.5 shadow-2xs hover:shadow-soft transition-all flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-sage-700">
-              Ketersediaan Air Lahan
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-sage-700">
+              Ketersediaan Air
             </span>
-            <div className="w-8 h-8 rounded-xl bg-wheat-50 border border-wheat-200 flex items-center justify-center text-wheat-800">
-              <Droplets className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-wheat-50 border border-wheat-200 flex items-center justify-center text-wheat-800">
+              <Droplets className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="mb-1">
-            <span className="text-lg sm:text-xl font-extrabold text-forest-900 leading-tight block truncate">
+          <div className="mb-0.5">
+            <span className="text-base sm:text-lg font-black text-forest-900 leading-tight block truncate">
               {hydration.status}
             </span>
           </div>
-          <p className="text-xs text-sage-700 truncate">{hydration.desc}</p>
+          <p className="text-[11px] text-sage-700 truncate">{hydration.desc}</p>
         </div>
-        <div className="mt-4 pt-3 border-t border-bone-200 flex items-center justify-between">
+        <div className="mt-2.5 pt-2 border-t border-bone-200 flex items-center justify-between">
           <span
-            className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${hydration.badgeColor}`}
+            className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${hydration.badgeColor}`}
           >
             {hydration.badge}
           </span>
-          <span className="text-[11px] text-sage-600 font-medium">RH {humidity}%</span>
+          <span className="text-[10px] text-sage-500 font-medium">RH {humidity}%</span>
         </div>
       </div>
 
       {/* 3. Risiko Hama & Penyakit */}
-      <div className="bg-white border border-bone-300 rounded-2xl p-4 sm:p-5 shadow-soft hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-clay-100/30 rounded-bl-full pointer-events-none" />
+      <div className="bg-white border border-bone-300 rounded-xl p-3 sm:p-3.5 shadow-2xs hover:shadow-soft transition-all flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-sage-700">
-              Indeks Risiko Hama
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-sage-700">
+              Risiko Hama & Blas
             </span>
-            <div className="w-8 h-8 rounded-xl bg-clay-50 border border-clay-100 flex items-center justify-center text-clay-700">
-              <ShieldAlert className="w-4 h-4" />
+            <div className="w-7 h-7 rounded-lg bg-clay-50 border border-clay-100 flex items-center justify-center text-clay-700">
+              <ShieldAlert className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className={`w-2.5 h-2.5 rounded-full ${pestRisk.indicator}`} />
-            <span className="text-lg sm:text-xl font-extrabold text-forest-900 leading-tight truncate">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className={`w-2 h-2 rounded-full ${pestRisk.indicator}`} />
+            <span className="text-base sm:text-lg font-black text-forest-900 leading-tight truncate">
               {pestRisk.level}
             </span>
           </div>
-          <p className="text-xs text-sage-700 truncate">{pestRisk.threat}</p>
+          <p className="text-[11px] text-sage-700 truncate">{pestRisk.threat}</p>
         </div>
-        <div className="mt-4 pt-3 border-t border-bone-200 flex items-center justify-between">
+        <div className="mt-2.5 pt-2 border-t border-bone-200 flex items-center justify-between">
           <span
-            className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${pestRisk.color}`}
+            className={`text-[10px] font-bold px-2 py-0.5 rounded-md border truncate max-w-[170px] ${pestRisk.color}`}
           >
             {pestRisk.advice}
           </span>
@@ -220,33 +217,32 @@ export default function ExecutiveKpiCards({
       </div>
 
       {/* 4. Telemetri & Status Node IoT */}
-      <div className="bg-white border border-bone-300 rounded-2xl p-4 sm:p-5 shadow-soft hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-forest-100/40 rounded-bl-full pointer-events-none" />
+      <div className="bg-white border border-bone-300 rounded-xl p-3 sm:p-3.5 shadow-2xs hover:shadow-soft transition-all flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-sage-700">
-              Jaringan Sensor IoT
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-sage-700">
+              Jaringan IoT
             </span>
-            <div className="w-8 h-8 rounded-xl bg-forest-900 text-wheat-300 flex items-center justify-center">
-              <Radio className="w-4 h-4 animate-pulse" />
+            <div className="w-7 h-7 rounded-lg bg-forest-900 text-wheat-300 flex items-center justify-center">
+              <Radio className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-3xl font-extrabold text-forest-900 tracking-tight">
+          <div className="flex items-baseline gap-1.5 mb-0.5">
+            <span className="text-2xl font-black text-forest-900 tracking-tight">
               {activeNodes}
             </span>
-            <span className="text-xs font-bold text-sage-600">/ {totalNodes} Node Online</span>
+            <span className="text-[11px] font-semibold text-sage-600">/ {totalNodes} Node Online</span>
           </div>
-          <p className="text-xs text-sage-700">
-            Solar Power & LoRaWAN Aktif
+          <p className="text-[11px] text-sage-700 truncate">
+            Solar Power & LoRa Realtime
           </p>
         </div>
-        <div className="mt-4 pt-3 border-t border-bone-200 flex items-center justify-between">
-          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-forest-50 border border-forest-200 text-forest-900 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-sage-500 animate-ping" />
-            Sinkron Real-time
+        <div className="mt-2.5 pt-2 border-t border-bone-200 flex items-center justify-between">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-forest-50 border border-forest-200 text-forest-900 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-sage-500 animate-pulse" />
+            Sinkron
           </span>
-          <span className="text-[11px] text-sage-600 font-medium">99.8% Uptime</span>
+          <span className="text-[10px] text-sage-500 font-medium">99.8% Uptime</span>
         </div>
       </div>
     </div>

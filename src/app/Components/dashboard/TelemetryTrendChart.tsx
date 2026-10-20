@@ -9,7 +9,7 @@ import { TrendingUp, Activity, Thermometer, Droplets, FlaskConical } from "lucid
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
   loading: () => (
-    <div className="h-[280px] flex items-center justify-center text-xs text-sage-600">
+    <div className="h-[220px] flex items-center justify-center text-xs text-sage-600">
       Memuat grafik telemetri...
     </div>
   ),
@@ -230,44 +230,44 @@ export default function TelemetryTrendChart({
   };
 
   return (
-    <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6">
+    <div className="bg-white border border-bone-300 rounded-xl shadow-2xs p-3.5 sm:p-4">
       {/* Header and Filter Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-3 border-b border-bone-200">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-forest-900 text-wheat-300 flex items-center justify-center font-bold">
-            <TrendingUp className="w-4 h-4" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 mb-2 border-b border-bone-200">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-forest-900 text-wheat-300 flex items-center justify-center font-bold">
+            <TrendingUp className="w-3.5 h-3.5" />
           </div>
           <div>
-            <h3 className="font-extrabold text-forest-900 text-base sm:text-lg">
+            <h3 className="font-bold text-forest-900 text-sm">
               Grafik Tren Telemetri Lahan
             </h3>
-            <p className="text-xs text-sage-700">Analisis dinamika hara tanah dan mikroklimat 24 jam</p>
+            <p className="text-[11px] text-sage-600">Dinamika hara dan iklim mikro 24 jam</p>
           </div>
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex items-center gap-1.5 p-1 bg-bone-100 rounded-xl border border-bone-200 self-start sm:self-auto">
+        <div className="flex items-center gap-1 p-0.5 bg-bone-100 rounded-lg border border-bone-200 self-start sm:self-auto">
           <button
             onClick={() => setActiveTab("soil")}
-            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition-all flex items-center gap-1.5 ${
               activeTab === "soil"
-                ? "bg-forest-900 text-wheat-300 shadow-sm"
+                ? "bg-forest-900 text-wheat-300 shadow-2xs"
                 : "text-forest-800 hover:text-forest-900 hover:bg-bone-200/60"
             }`}
           >
-            <FlaskConical className="w-3.5 h-3.5" />
+            <FlaskConical className="w-3 h-3" />
             <span>Hara Tanah & pH</span>
           </button>
 
           <button
             onClick={() => setActiveTab("weather")}
-            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`px-2.5 py-1 text-[11px] font-bold rounded-md transition-all flex items-center gap-1.5 ${
               activeTab === "weather"
-                ? "bg-forest-900 text-wheat-300 shadow-sm"
+                ? "bg-forest-900 text-wheat-300 shadow-2xs"
                 : "text-forest-800 hover:text-forest-900 hover:bg-bone-200/60"
             }`}
           >
-            <Thermometer className="w-3.5 h-3.5" />
+            <Thermometer className="w-3 h-3" />
             <span>Suhu & Kelembapan</span>
           </button>
         </div>
@@ -280,25 +280,25 @@ export default function TelemetryTrendChart({
             options={soilOptions}
             series={soilSeries}
             type="area"
-            height={280}
+            height={220}
           />
         ) : (
           <ReactApexChart
             options={weatherOptions}
             series={weatherSeries}
             type="line"
-            height={280}
+            height={220}
           />
         )}
       </div>
 
       {/* Chart Footer Insight */}
-      <div className="mt-3 pt-3 border-t border-bone-200 flex flex-wrap items-center justify-between gap-2 text-[11px] text-sage-700">
+      <div className="mt-2 pt-2 border-t border-bone-200 flex flex-wrap items-center justify-between gap-2 text-[10px] text-sage-600">
         <span className="flex items-center gap-1">
-          <Activity className="w-3.5 h-3.5 text-sage-600" />
-          <span>Frekuensi sampling data: setiap 15 menit melalui stasiun sensor LoRaWAN</span>
+          <Activity className="w-3 h-3 text-sage-500" />
+          <span>Sampling data berkala via LoRaWAN node</span>
         </span>
-        <span className="font-semibold text-forest-900">Status Fluktuasi: Stabil / Normal</span>
+        <span className="font-semibold text-forest-900">Status: Fluktuasi Stabil</span>
       </div>
     </div>
   );
