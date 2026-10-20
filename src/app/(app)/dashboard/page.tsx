@@ -11,6 +11,9 @@ import Map from "../../Components/map";
 import FloatingGallery from "../../Components/GalleryModal";
 import Site from "../../Components/dropdownSite";
 import Realtime from "../../Components/indikator/realtimeDashboard";
+import ExecutiveKpiCards from "../../Components/dashboard/ExecutiveKpiCards";
+import AiAgronomyWidget from "../../Components/dashboard/AiAgronomyWidget";
+import TelemetryTrendChart from "../../Components/dashboard/TelemetryTrendChart";
 import {
   Calendar,
   Thermometer,
@@ -354,6 +357,19 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Executive KPI Summary Cards */}
+      <ExecutiveKpiCards
+        ph={data.soil_ph?.[0]?.read_value ? Number(data.soil_ph[0].read_value) : 6.4}
+        nitrogen={data.nitrogen?.[0]?.read_value ? Number(data.nitrogen[0].read_value) : 45}
+        fosfor={data.fosfor?.[0]?.read_value ? Number(data.fosfor[0].read_value) : 38}
+        kalium={data.kalium?.[0]?.read_value ? Number(data.kalium[0].read_value) : 52}
+        humidity={data.humidity?.[0]?.read_value || 76}
+        temperature={data.temperature?.[0]?.read_value || 28.5}
+        rain={data.rain?.[0]?.read_value || 0}
+        activeNodes={data.soil_ph?.length || 4}
+        totalNodes={data.soil_ph?.length || 4}
+      />
+
       {/* Top Grid: Interactive Map & Plant Information */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Map Section */}
@@ -460,6 +476,16 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* AI Agronomy & Vision Intelligence Hub */}
+      <AiAgronomyWidget
+        currentPhase={currentPlant?.phase}
+        plantAge={currentPlant?.age ? Number(currentPlant.age) : undefined}
+        plantCommodity={currentPlant?.commodity}
+        soilPh={data.soil_ph?.[0]?.read_value ? Number(data.soil_ph[0].read_value) : undefined}
+        temperature={data.temperature?.[0]?.read_value}
+        humidity={data.humidity?.[0]?.read_value}
+      />
+
       {/* Environmental Telemetry Row */}
       <div className="bg-white border border-bone-300 rounded-2xl shadow-soft p-4 sm:p-6">
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-bone-200">
@@ -489,6 +515,16 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* 24-Hour Telemetry Trend Chart */}
+      <TelemetryTrendChart
+        nitrogen={data.nitrogen?.[0]?.read_value ? Number(data.nitrogen[0].read_value) : undefined}
+        fosfor={data.fosfor?.[0]?.read_value ? Number(data.fosfor[0].read_value) : undefined}
+        kalium={data.kalium?.[0]?.read_value ? Number(data.kalium[0].read_value) : undefined}
+        ph={data.soil_ph?.[0]?.read_value ? Number(data.soil_ph[0].read_value) : undefined}
+        temperature={data.temperature?.[0]?.read_value}
+        humidity={data.humidity?.[0]?.read_value}
+      />
 
       {/* Tasks & Agronomic Warnings Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
