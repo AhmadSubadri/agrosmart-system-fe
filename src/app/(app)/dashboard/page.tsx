@@ -115,6 +115,7 @@ export default function Dashboard() {
   });
   const [actionMessages, setActionMessages] = useState<ActionMessage[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -255,6 +256,8 @@ export default function Dashboard() {
   }, [data.devices]);
 
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     const token = localStorage.getItem("token");
     try {
       await fetch(`${API_URL}/api/logout`, {
@@ -299,7 +302,7 @@ export default function Dashboard() {
 
           <button
             onClick={fetchData}
-            disabled={isRefreshing}
+            disabled={isRefreshing || isLoggingOut}
             className="px-4 py-2.5 bg-white border border-bone-300 hover:border-sage-400 text-forest-800 text-sm font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 hover:bg-bone-50 disabled:opacity-60"
           >
             <RefreshCw
@@ -310,10 +313,24 @@ export default function Dashboard() {
 
           <button
             onClick={handleLogout}
-            className="px-4 py-2.5 bg-clay-600 hover:bg-clay-700 text-white text-sm font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2"
+            disabled={isLoggingOut}
+            className={`px-4 py-2.5 text-white text-sm font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 ${
+              isLoggingOut
+                ? "bg-clay-700 cursor-wait opacity-90 scale-[0.98]"
+                : "bg-clay-600 hover:bg-clay-700 active:scale-95"
+            }`}
           >
-            <LogOut className="w-4 h-4" />
-            <span>Keluar</span>
+            {isLoggingOut ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin text-wheat-300" />
+                <span>Memproses Keluar...</span>
+              </>
+            ) : (
+              <>
+                <LogOut className="w-4 h-4" />
+                <span>Keluar</span>
+              </>
+            )}
           </button>
         </div>
       </div>

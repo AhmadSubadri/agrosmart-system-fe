@@ -13,9 +13,12 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  LogOut,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface SidebarProps {
   open: boolean;
@@ -35,6 +38,33 @@ const Sidebar: React.FC<SidebarProps> = ({
   setActivePage,
 }) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    const token = localStorage.getItem("token");
+    try {
+      if (token) {
+        await fetch(`${API_URL}/api/logout`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("selectedSiteId");
+      router.push("/login");
+    }
+  };
 
   const Menus = [
     {
@@ -202,7 +232,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* User / Profile footer */}
-      <div className="p-3 border-t border-forest-800/80 bg-forest-950/40">
+      <div className="p-3 border-t border-forest-800/80 bg-forest-950/40 space-y-1.5">
         <Link
           href="/profil"
           onClick={() => {
@@ -210,7 +240,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             if (setMobileOpen) setMobileOpen(false);
           }}
           className={`
-            flex items-center gap-3 p-2.5 rounded-xl transition-colors
+            flex items-center gap-3 p-2 rounded-xl transition-colors
             ${
               pathname.startsWith("/profil")
                 ? "bg-sage-600/30 text-wheat-200 border border-sage-500/40"
@@ -220,20 +250,52 @@ const Sidebar: React.FC<SidebarProps> = ({
           `}
           title={!open && !mobileOpen ? "Profil Akun" : undefined}
         >
-          <div className="w-8 h-8 rounded-lg bg-clay-500/30 border border-clay-400/40 flex items-center justify-center text-wheat-300 flex-shrink-0">
-            <User className="w-4 h-4" />
+          <div className="w-7 h-7 rounded-lg bg-clay-500/30 border border-clay-400/40 flex items-center justify-center text-wheat-300 flex-shrink-0">
+            <User className="w-3.5 h-3.5" />
           </div>
           {(open || mobileOpen) && (
             <div className="flex-1 min-w-0 flex flex-col">
               <span className="text-xs font-semibold text-bone-100 truncate">Pengaturan Akun</span>
-              <span className="text-[11px] text-sage-400/80 truncate">Kelola profil & sistem</span>
+              <span className="text-[10px] text-sage-400/80 truncate">Kelola profil</span>
             </div>
           )}
         </Link>
+
+        {/* Quick Logout Button in Sidebar */}
+        <button
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className={`
+            w-full flex items-center gap-3 p-2 rounded-xl text-xs font-semibold transition-all
+            ${
+              isLoggingOut
+                ? "bg-clay-800 text-wheat-300 cursor-wait opacity-90"
+                : "text-clay-300/90 hover:bg-clay-950/60 hover:text-clay-200 active:scale-95"
+            }
+            ${!open && !mobileOpen ? "justify-center" : ""}
+          `}
+          title={!open && !mobileOpen ? "Keluar Sistem" : undefined}
+        >
+          <div className="w-7 h-7 rounded-lg bg-clay-900/60 border border-clay-700/40 flex items-center justify-center flex-shrink-0 text-clay-400">
+            {isLoggingOut ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-wheat-300" />
+            ) : (
+              <LogOut className="w-3.5 h-3.5" />
+            )}
+          </div>
+          {(open || mobileOpen) && (
+            <div className="flex-1 min-w-0 text-left">
+              <span className="truncate block">
+                {isLoggingOut ? "Memproses Keluar..." : "Keluar"}
+              </span>
+            </div>
+          )}
+        </button>
       </div>
     </aside>
   );
 };
 
 export default Sidebar;
+
 
