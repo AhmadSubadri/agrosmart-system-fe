@@ -119,14 +119,21 @@ export default function Dashboard() {
   const [actionMessages, setActionMessages] = useState<ActionMessage[]>([]);
   const [selectedPlotIndex, setSelectedPlotIndex] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isBackgroundSync, setIsBackgroundSync] = useState(false);
+  const [isAutoSync, setIsAutoSync] = useState(true);
+  const [countdown, setCountdown] = useState(15);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const IMAGE_BASE = "/assets/img";
 
-  const fetchData = async () => {
-    setIsRefreshing(true);
+  const fetchData = async (silent = false) => {
+    if (silent) {
+      setIsBackgroundSync(true);
+    } else {
+      setIsRefreshing(true);
+    }
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
 
@@ -138,6 +145,7 @@ export default function Dashboard() {
     if (!siteId || siteId === "undefined" || siteId === "null") {
       console.warn("Invalid or missing siteId, please select a site.");
       setIsRefreshing(false);
+      setIsBackgroundSync(false);
       return;
     }
 
@@ -246,12 +254,34 @@ export default function Dashboard() {
       }
     } finally {
       setIsRefreshing(false);
+      setIsBackgroundSync(false);
+      setCountdown(15);
     }
   };
 
   useEffect(() => {
     fetchData();
   }, [siteId]);
+
+  // Realtime Auto-Polling Heartbeat (Every 15 Seconds)
+  useEffect(() => {
+    if (!siteId || !isAutoSync) return;
+
+    const interval = setInterval(() => {
+      // Pause polling if the user has minimized or switched tabs
+      if (typeof document !== "undefined" && document.hidden) return;
+
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          fetchData(true);
+          return 15;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [siteId, isAutoSync]);
 
   const mapImageUrl = useMemo(() => {
     const filename = data.devices?.[0]?.dev_img;
@@ -305,7 +335,7 @@ export default function Dashboard() {
           />
 
           <button
-            onClick={fetchData}
+            onClick={() => fetchData()}
             disabled={isRefreshing || isLoggingOut}
             className="px-4 py-2.5 bg-white border border-bone-300 hover:border-sage-400 text-forest-800 text-sm font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 hover:bg-bone-50 disabled:opacity-60"
           >
@@ -339,22 +369,49 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Meta Bar: Last Update & Active Plot */}
+      {/* Meta Bar: Last Update, Active Plot, & Realtime Live Sync */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs text-sage-700 font-medium">
-        <div className="flex items-center gap-2 bg-bone-100/70 border border-bone-200 px-3 py-1.5 rounded-full">
-          <Clock className="w-3.5 h-3.5 text-sage-600" />
-          <span>Update Terakhir:</span>
-          <span className="font-bold text-forest-900">
-            {data.last_updated || "Sinkronisasi data..."}
-          </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 bg-bone-100/70 border border-bone-200 px-3 py-1.5 rounded-full">
+            <Clock className="w-3.5 h-3.5 text-sage-600" />
+            <span>Update Terakhir:</span>
+            <span className="font-bold text-forest-900">
+              {data.last_updated || "Sinkronisasi data..."}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 bg-bone-100/70 border border-bone-200 px-3 py-1.5 rounded-full">
+            <MapPin className="w-3.5 h-3.5 text-clay-500" />
+            <span>ID Lokasi:</span>
+            <span className="font-bold text-forest-900">
+              {siteId ? `Lahan #${siteId}` : "Belum Dipilih"}
+            </span>
+          </div>
         </div>
 
+        {/* Live Realtime Heartbeat Pill */}
         <div className="flex items-center gap-2 bg-bone-100/70 border border-bone-200 px-3 py-1.5 rounded-full">
-          <MapPin className="w-3.5 h-3.5 text-clay-500" />
-          <span>ID Lokasi:</span>
-          <span className="font-bold text-forest-900">
-            {siteId ? `Lahan #${siteId}` : "Belum Dipilih"}
-          </span>
+          <span
+            className={`w-2 h-2 rounded-full transition-all ${
+              isAutoSync
+                ? isBackgroundSync
+                  ? "bg-amber-500 animate-ping"
+                  : "bg-emerald-500 animate-pulse"
+                : "bg-sage-400"
+            }`}
+          />
+          <span>Auto-Sync:</span>
+          <button
+            onClick={() => setIsAutoSync(!isAutoSync)}
+            className="font-bold text-forest-900 hover:text-forest-700 underline underline-offset-2 flex items-center gap-1 transition-colors"
+            title={isAutoSync ? "Klik untuk jeda sinkronisasi otomatis" : "Klik untuk aktifkan sinkronisasi otomatis"}
+          >
+            {isAutoSync ? (
+              <span>{isBackgroundSync ? "Sinkron..." : `Live (${countdown}s)`}</span>
+            ) : (
+              <span className="text-clay-600">Jeda (Mati)</span>
+            )}
+          </button>
         </div>
       </div>
 
