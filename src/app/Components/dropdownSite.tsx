@@ -49,8 +49,21 @@ const DropdownSite: React.FC<DropdownSiteProps> = ({ onSiteChange, className = "
           },
         });
 
-        const result = await res.json();
-        if (Array.isArray(result.data) && result.data.length > 0 && isMounted) {
+        if (!res.ok) return;
+        const contentType = res.headers.get("content-type") || "";
+        let result: any = null;
+        if (!contentType.includes("application/json")) {
+          const text = await res.text();
+          if (!text || text.trim().startsWith("<")) return;
+          try {
+            result = JSON.parse(text);
+          } catch {
+            return;
+          }
+        } else {
+          result = await res.json();
+        }
+        if (result && Array.isArray(result.data) && result.data.length > 0 && isMounted) {
           setSites(result.data);
           sessionStorage.setItem("cached_sites_list", JSON.stringify(result.data));
 

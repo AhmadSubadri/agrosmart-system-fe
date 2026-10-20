@@ -3,7 +3,16 @@
 import React, { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { ApexOptions } from "apexcharts";
-import { TrendingUp, Activity, Thermometer, Droplets, FlaskConical, Calendar } from "lucide-react";
+import {
+  TrendingUp,
+  Activity,
+  Thermometer,
+  FlaskConical,
+  Calendar,
+  Check,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 
 // Dynamically import ReactApexChart to prevent SSR issues
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -33,10 +42,103 @@ export default function TelemetryTrendChart({
   humidity = 76,
 }: TelemetryTrendChartProps) {
   const [activeTab, setActiveTab] = useState<"soil" | "weather">("soil");
-  const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d">("24h");
+  const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d" | "custom">("24h");
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+
+  // Default dates for custom date range picker (e.g. 7 days back to today)
+  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const sevenDaysAgoStr = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 7);
+    return d.toISOString().split("T")[0];
+  }, []);
+
+  const [startDate, setStartDate] = useState<string>(sevenDaysAgoStr);
+  const [endDate, setEndDate] = useState<string>(todayStr);
+  const [appliedCustomRange, setAppliedCustomRange] = useState<{
+    start: string;
+    end: string;
+  }>({
+    start: sevenDaysAgoStr,
+    end: todayStr,
+  });
+
+  const handleApplyCustomDate = () => {
+    if (!startDate || !endDate) return;
+    if (new Date(startDate) > new Date(endDate)) {
+      alert("Tanggal mulai tidak boleh lebih besar dari tanggal akhir");
+      return;
+    }
+    setAppliedCustomRange({ start: startDate, end: endDate });
+    setTimeRange("custom");
+    setShowDatePicker(false);
+  };
 
   // Dynamic Categories and Series based on timeRange
   const { categories, soilSeries, weatherSeries, subtitleText } = useMemo(() => {
+    if (timeRange === "custom" && appliedCustomRange) {
+      const start = new Date(appliedCustomRange.start);
+      const end = new Date(appliedCustomRange.end);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
+
+      // Generate date step points (max 10 points for clear readable chart)
+      const step = Math.max(1, Math.floor(diffDays / 7));
+      const cats: string[] = [];
+      const current = new Date(start);
+
+      while (current <= end) {
+        const d = current.getDate();
+        const m = current.toLocaleDateString("id-ID", { month: "short" });
+        cats.push(`${d} ${m}`);
+        current.setDate(current.getDate() + step);
+      }
+      if (cats.length === 0) cats.push(start.toLocaleDateString("id-ID", { day: "numeric", month: "short" }));
+
+      // Generate realistic trends matching the custom range length
+      const count = cats.length;
+      const nData = Array.from({ length: count }, (_, i) => {
+        const factor = Math.sin((i / (count || 1)) * Math.PI) * 5;
+        return Math.round(nitrogen + factor);
+      });
+      const pData = Array.from({ length: count }, (_, i) => {
+        const factor = (i % 2 === 0 ? 1 : -1) * 2;
+        return Math.round(fosfor + factor);
+      });
+      const kData = Array.from({ length: count }, (_, i) => {
+        const factor = Math.cos((i / (count || 1)) * Math.PI) * 4;
+        return Math.round(kalium + factor);
+      });
+      const phData = Array.from({ length: count }, () => Math.round(ph * 10));
+
+      const tData = Array.from({ length: count }, (_, i) => {
+        return Math.round((temperature + (i % 3 - 1) * 1.5) * 10) / 10;
+      });
+      const hData = Array.from({ length: count }, (_, i) => {
+        return Math.round(humidity + (i % 2 === 0 ? 3 : -4));
+      });
+
+      const formatDateIndo = (dStr: string) => {
+        const [y, m, d] = dStr.split("-");
+        return `${d}/${m}/${y}`;
+      };
+
+      return {
+        categories: cats,
+        subtitleText: `Rentang Kustom: ${formatDateIndo(appliedCustomRange.start)} s.d. ${formatDateIndo(appliedCustomRange.end)} (${diffDays} hari)`,
+        soilSeries: [
+          { name: "Nitrogen (N) - mg/kg", data: nData },
+          { name: "Fosfor (P) - mg/kg", data: pData },
+          { name: "Kalium (K) - mg/kg", data: kData },
+          { name: "pH Tanah (x10)", data: phData },
+        ],
+        weatherSeries: [
+          { name: "Suhu Udara (°C)", data: tData },
+          { name: "Kelembapan Udara (%)", data: hData },
+        ],
+      };
+    }
+
     if (timeRange === "7d") {
       const cats = ["H-6", "H-5", "H-4", "H-3", "H-2", "Kemarin", "Hari Ini"];
       return {
@@ -243,7 +345,7 @@ export default function TelemetryTrendChart({
         },
       ],
     };
-  }, [timeRange, nitrogen, fosfor, kalium, ph, temperature, humidity]);
+  }, [timeRange, appliedCustomRange, nitrogen, fosfor, kalium, ph, temperature, humidity]);
 
   const soilOptions: ApexOptions = {
     chart: {
@@ -356,7 +458,10 @@ export default function TelemetryTrendChart({
           {/* Time Range Selector */}
           <div className="flex items-center gap-1 p-0.5 bg-bone-100 rounded-lg border border-bone-200">
             <button
-              onClick={() => setTimeRange("24h")}
+              onClick={() => {
+                setTimeRange("24h");
+                setShowDatePicker(false);
+              }}
               className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${
                 timeRange === "24h"
                   ? "bg-forest-900 text-wheat-300 shadow-2xs"
@@ -366,7 +471,10 @@ export default function TelemetryTrendChart({
               24 Jam
             </button>
             <button
-              onClick={() => setTimeRange("7d")}
+              onClick={() => {
+                setTimeRange("7d");
+                setShowDatePicker(false);
+              }}
               className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${
                 timeRange === "7d"
                   ? "bg-forest-900 text-wheat-300 shadow-2xs"
@@ -376,7 +484,10 @@ export default function TelemetryTrendChart({
               7 Hari
             </button>
             <button
-              onClick={() => setTimeRange("30d")}
+              onClick={() => {
+                setTimeRange("30d");
+                setShowDatePicker(false);
+              }}
               className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${
                 timeRange === "30d"
                   ? "bg-forest-900 text-wheat-300 shadow-2xs"
@@ -384,6 +495,23 @@ export default function TelemetryTrendChart({
               }`}
             >
               30 Hari
+            </button>
+            <button
+              onClick={() => setShowDatePicker(!showDatePicker)}
+              className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all flex items-center gap-1 ${
+                timeRange === "custom"
+                  ? "bg-forest-900 text-wheat-300 shadow-2xs"
+                  : "text-forest-800 hover:text-forest-900"
+              }`}
+              title="Filter rentang tanggal kustom"
+            >
+              <Calendar className="w-3 h-3" />
+              <span>Rentang Tanggal</span>
+              {showDatePicker ? (
+                <ChevronUp className="w-2.5 h-2.5 opacity-70" />
+              ) : (
+                <ChevronDown className="w-2.5 h-2.5 opacity-70" />
+              )}
             </button>
           </div>
 
@@ -416,6 +544,48 @@ export default function TelemetryTrendChart({
         </div>
       </div>
 
+      {/* Expandable Custom Date Range Selector Bar */}
+      {showDatePicker && (
+        <div className="mb-3 p-2.5 bg-bone-50 border border-bone-300 rounded-lg flex flex-wrap items-center gap-3 animate-in fade-in-50 duration-150">
+          <div className="flex items-center gap-2 text-xs text-forest-900">
+            <Calendar className="w-3.5 h-3.5 text-sage-600" />
+            <span className="font-bold text-[11px]">Pilih Rentang Tanggal:</span>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-1 bg-white border border-bone-300 rounded-md px-2 py-1 shadow-2xs">
+              <span className="text-[10px] font-semibold text-sage-600">Mulai:</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="text-[11px] font-medium text-forest-900 focus:outline-none bg-transparent"
+              />
+            </div>
+
+            <span className="text-sage-500 font-bold text-xs">-</span>
+
+            <div className="flex items-center gap-1 bg-white border border-bone-300 rounded-md px-2 py-1 shadow-2xs">
+              <span className="text-[10px] font-semibold text-sage-600">Sampai:</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="text-[11px] font-medium text-forest-900 focus:outline-none bg-transparent"
+              />
+            </div>
+
+            <button
+              onClick={handleApplyCustomDate}
+              className="px-3 py-1 bg-forest-900 hover:bg-forest-800 text-wheat-300 text-xs font-bold rounded-md transition-all shadow-2xs flex items-center gap-1 active:scale-[0.98]"
+            >
+              <Check className="w-3.5 h-3.5" />
+              <span>Terapkan</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Chart Canvas */}
       <div className="w-full">
         {activeTab === "soil" ? (
@@ -440,7 +610,9 @@ export default function TelemetryTrendChart({
         <span className="flex items-center gap-1">
           <Activity className="w-3 h-3 text-sage-500" />
           <span>
-            Rentang aktif: {timeRange === "24h" ? "24 Jam (Interval 3 Jam)" : timeRange === "7d" ? "7 Hari (Rata-rata Harian)" : "30 Hari (Per Minggu)"}
+            {timeRange === "custom"
+              ? "Menampilkan simulasi tren telemetri kustom berdasarkan riwayat tanggal terpilih"
+              : `Rentang aktif: ${timeRange === "24h" ? "24 Jam (Interval 3 Jam)" : timeRange === "7d" ? "7 Hari (Rata-rata Harian)" : "30 Hari (Per Minggu)"}`}
           </span>
         </span>
         <span className="font-semibold text-forest-900">Status: Fluktuasi Terkendali</span>

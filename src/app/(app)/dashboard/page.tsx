@@ -157,8 +157,16 @@ export default function Dashboard() {
     const fetchJSON = async (url: string) => {
       try {
         const res = await fetch(url, { headers });
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+        if (!res.ok) return null;
+        const contentType = res.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          const text = await res.text();
+          if (!text || text.trim().startsWith("<")) return null;
+          try {
+            return JSON.parse(text);
+          } catch {
+            return null;
+          }
         }
         return await res.json();
       } catch {
