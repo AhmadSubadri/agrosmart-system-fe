@@ -70,17 +70,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {/* Main Content Area */}
           <div
             className={`flex-grow flex flex-col min-w-0 transition-all duration-300 ${
-              sidebarOpen ? "lg:ml-64" : "lg:ml-[72px]"
-            }`}
+              pathname.startsWith("/chatbot") ? "h-screen overflow-hidden" : ""
+            } ${sidebarOpen ? "lg:ml-64" : "lg:ml-[72px]"}`}
           >
             <Header
               title={activePage}
               onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)}
             />
-            <main className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 max-w-7xl w-full mx-auto">
-              {children}
-            </main>
-            <Footer />
+            {pathname.startsWith("/chatbot") ? (
+              <main className="flex-1 w-full max-w-7xl mx-auto p-2 sm:p-3 md:p-4 overflow-hidden flex flex-col min-h-0">
+                {children}
+              </main>
+            ) : (
+              <>
+                <main className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+                  {children}
+                </main>
+                <Footer />
+              </>
+            )}
           </div>
         </div>
       )}

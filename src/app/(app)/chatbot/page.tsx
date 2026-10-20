@@ -26,9 +26,7 @@ type Message = { role: "user" | "bot"; text: string; time?: string };
 function ChatbotContent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [selectedChatTitle, setSelectedChatTitle] = useState<string | null>(
-    null
-  );
+  const [selectedChatTitle, setSelectedChatTitle] = useState<string | null>(null);
   const [shouldRefreshHistory, setShouldRefreshHistory] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,14 +56,12 @@ function ChatbotContent() {
         const token = localStorage.getItem("token");
         const headers: HeadersInit = {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
         };
         if (token) headers.Authorization = `Bearer ${token}`;
 
         const res = await fetch(
-          `${API_URL}/api/chat/history/${encodeURIComponent(
-            selectedChatTitle
-          )}`,
+          `${API_URL}/api/chat/history/${encodeURIComponent(selectedChatTitle)}`,
           { headers }
         );
 
@@ -112,7 +108,7 @@ function ChatbotContent() {
       const token = localStorage.getItem("token");
       const headers: HeadersInit = {
         "Content-Type": "application/json",
-        "Accept": "application/json",
+        Accept: "application/json",
       };
       if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -202,48 +198,67 @@ function ChatbotContent() {
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Header Banner */}
-      <div className="bg-white border border-bone-300/80 rounded-2xl p-4 sm:p-6 shadow-soft flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h2 className="text-xl sm:text-2xl font-extrabold text-forest-900 tracking-tight">
-              Asisten Cerdas Pertanian
-            </h2>
-            <span className="px-2 py-0.5 rounded-md bg-wheat-200/80 border border-wheat-300 text-[10px] font-bold text-forest-900 uppercase tracking-wider">
-              Groq Powered
-            </span>
+    <div className="h-full w-full flex flex-col min-h-0 overflow-hidden gap-2 sm:gap-3">
+      {/* Compact Top Header Bar */}
+      <div className="bg-white border border-bone-300 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 shadow-2xs flex items-center justify-between gap-3 flex-shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-forest-900 text-wheat-300 flex items-center justify-center font-bold flex-shrink-0 shadow-2xs">
+            <Sprout className="w-4 h-4" />
           </div>
-          <p className="text-xs sm:text-sm text-sage-700 mt-1">
-            Konsultasi agronomik berbasis AI untuk diagnosa tanah, hama, dan preskripsi pemupukan
-          </p>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm sm:text-base font-extrabold text-forest-900 tracking-tight truncate">
+                Asisten Cerdas Pertanian
+              </h2>
+              <span className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-wheat-200/80 border border-wheat-300 text-[9px] font-bold text-forest-900 uppercase tracking-wider">
+                Groq AI
+              </span>
+            </div>
+            <p className="text-[10px] sm:text-[11px] text-sage-600 truncate hidden md:block">
+              Konsultasi agronomik berbasis AI untuk diagnosa tanah, hama, dan pemupukan presisi
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-sage-100 border border-sage-200 text-xs font-semibold text-forest-800">
-            <Sparkles className="w-3.5 h-3.5 text-sage-600 animate-pulse" />
-            <span>AI Online &amp; Siap Konsultasi</span>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sage-100 border border-sage-200 text-[10px] font-semibold text-forest-800">
+            <Sparkles className="w-3 h-3 text-sage-600 animate-pulse" />
+            <span>AI Siap</span>
           </div>
+
+          <button
+            onClick={() => {
+              setMessages([]);
+              setSelectedChatTitle(null);
+              setShouldRefreshHistory(true);
+            }}
+            className="px-2.5 py-1 bg-forest-900 hover:bg-forest-800 text-wheat-300 rounded-lg transition-colors shadow-2xs flex items-center gap-1.5 text-xs font-bold active:scale-[0.98]"
+            title="Mulai Sesi Baru"
+          >
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Sesi Baru</span>
+          </button>
 
           {/* Mobile History Drawer Toggle */}
           <button
             onClick={() => setMobileHistoryOpen(true)}
-            className="lg:hidden p-2 rounded-xl bg-forest-900 text-wheat-300 hover:bg-forest-800 transition-colors flex items-center gap-1.5 text-xs font-semibold"
+            className="lg:hidden p-1.5 rounded-lg bg-bone-100 border border-bone-300 text-forest-900 hover:bg-bone-200 transition-colors flex items-center gap-1 text-xs font-semibold"
+            title="Buka Riwayat Konsultasi"
           >
             <PanelLeft className="w-4 h-4" />
-            <span>Riwayat</span>
+            <span className="text-[11px]">Riwayat</span>
           </button>
         </div>
       </div>
 
-      {/* Main Chat Layout Container */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-14rem)] min-h-[580px] max-h-[850px]">
+      {/* Main Full-Height Chat Container */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 overflow-hidden">
         {/* ===== DESKTOP SIDEBAR - Chat History ===== */}
-        <div className="hidden lg:flex lg:col-span-4 bg-white border border-bone-300 rounded-2xl shadow-soft flex-col overflow-hidden">
-          <div className="p-4 border-b border-bone-200 bg-bone-50/50 flex items-center justify-between">
+        <div className="hidden lg:flex lg:col-span-4 bg-white border border-bone-300 rounded-xl shadow-2xs flex-col overflow-hidden h-full min-h-0">
+          <div className="p-3 border-b border-bone-200 bg-bone-50/60 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-forest-800" />
-              <h3 className="font-bold text-forest-900 text-sm">Riwayat Konsultasi</h3>
+              <h3 className="font-bold text-forest-900 text-xs sm:text-sm">Riwayat Konsultasi</h3>
             </div>
             <button
               onClick={() => {
@@ -251,15 +266,15 @@ function ChatbotContent() {
                 setSelectedChatTitle(null);
                 setShouldRefreshHistory(true);
               }}
-              className="px-2.5 py-1.5 bg-forest-900 hover:bg-forest-800 text-wheat-300 rounded-xl transition-colors shadow-2xs flex items-center gap-1.5 text-xs font-semibold"
+              className="px-2 py-1 bg-forest-50 hover:bg-forest-100 text-forest-900 border border-forest-200 rounded-md transition-colors text-[11px] font-bold flex items-center gap-1"
               title="Mulai Sesi Baru"
             >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>Sesi Baru</span>
+              <PlusCircle className="w-3 h-3" />
+              <span>Baru</span>
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-2">
+          <div className="flex-1 overflow-y-auto p-2 min-h-0">
             <RiwayatChat
               onSelectChat={setSelectedChatTitle}
               onAddNewChat={() => {
@@ -278,15 +293,14 @@ function ChatbotContent() {
         {/* ===== MOBILE DRAWER - Chat History ===== */}
         {mobileHistoryOpen && (
           <div className="fixed inset-0 z-50 lg:hidden flex">
-            {/* Backdrop */}
             <div
               className="fixed inset-0 bg-forest-950/60 backdrop-blur-xs transition-opacity"
               onClick={() => setMobileHistoryOpen(false)}
             />
 
             <div className="relative w-4/5 max-w-xs bg-white border-r border-bone-300 h-full flex flex-col shadow-2xl z-10 animate-in slide-in-from-left duration-200">
-              <div className="p-4 border-b border-bone-200 bg-forest-900 text-bone-50 flex items-center justify-between">
-                <div className="flex items-center gap-2 font-bold text-sm">
+              <div className="p-3.5 border-b border-bone-200 bg-forest-900 text-bone-50 flex items-center justify-between flex-shrink-0">
+                <div className="flex items-center gap-2 font-bold text-xs sm:text-sm">
                   <MessageSquare className="w-4 h-4 text-wheat-300" />
                   <span>Riwayat Konsultasi</span>
                 </div>
@@ -298,7 +312,7 @@ function ChatbotContent() {
                 </button>
               </div>
 
-              <div className="p-3 border-b border-bone-200">
+              <div className="p-2.5 border-b border-bone-200 flex-shrink-0">
                 <button
                   onClick={() => {
                     setMessages([]);
@@ -306,14 +320,14 @@ function ChatbotContent() {
                     setShouldRefreshHistory(true);
                     setMobileHistoryOpen(false);
                   }}
-                  className="w-full py-2 bg-forest-900 hover:bg-forest-800 text-wheat-300 rounded-xl transition-colors flex items-center justify-center gap-2 text-xs font-bold shadow-sm"
+                  className="w-full py-2 bg-forest-900 hover:bg-forest-800 text-wheat-300 rounded-lg transition-colors flex items-center justify-center gap-1.5 text-xs font-bold shadow-2xs"
                 >
                   <PlusCircle className="w-4 h-4" />
                   <span>Mulai Sesi Baru</span>
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-2">
+              <div className="flex-1 overflow-y-auto p-2 min-h-0">
                 <RiwayatChat
                   onSelectChat={(title) => {
                     setSelectedChatTitle(title);
@@ -335,20 +349,18 @@ function ChatbotContent() {
           </div>
         )}
 
-        {/* ===== CHAT MESSAGES & INPUT AREA ===== */}
-        <div className="lg:col-span-8 bg-white border border-bone-300 rounded-2xl shadow-soft flex flex-col overflow-hidden">
-          {/* Active Session Header */}
-          <div className="px-4 sm:px-6 py-3 border-b border-bone-200 bg-bone-50/60 flex items-center justify-between">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-forest-900 text-wheat-300 flex items-center justify-center font-bold flex-shrink-0 shadow-2xs">
-                <Sprout className="w-4 h-4" />
-              </div>
+        {/* ===== MAIN CHAT PANEL (MESSAGES + ALWAYS-VISIBLE INPUT) ===== */}
+        <div className="lg:col-span-8 bg-white border border-bone-300 rounded-xl shadow-2xs flex flex-col overflow-hidden h-full min-h-0">
+          {/* Active Session Sub-Header */}
+          <div className="px-3.5 sm:px-4 py-2 border-b border-bone-200 bg-bone-50/70 flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
               <div className="min-w-0">
                 <h4 className="font-bold text-xs sm:text-sm text-forest-900 leading-tight truncate">
                   {selectedChatTitle || "Sesi Konsultasi Baru"}
                 </h4>
-                <p className="text-[10px] sm:text-[11px] text-sage-700 truncate">
-                  Model Agronomi Khusus Padi &amp; Analisis Telemetri Tanah
+                <p className="text-[10px] text-sage-600 truncate">
+                  Model Agronomi Padi &amp; Telemetri Tanah KawalTani
                 </p>
               </div>
             </div>
@@ -359,27 +371,27 @@ function ChatbotContent() {
                   setMessages([]);
                   setSelectedChatTitle(null);
                 }}
-                className="text-xs text-sage-700 hover:text-forest-900 font-semibold px-2.5 py-1 rounded-lg hover:bg-bone-200 transition-colors flex-shrink-0"
+                className="text-[11px] text-sage-700 hover:text-forest-900 font-semibold px-2 py-0.5 rounded hover:bg-bone-200 transition-colors flex-shrink-0"
               >
                 Reset Sesi
               </button>
             )}
           </div>
 
-          {/* Messages Feed */}
+          {/* Messages Feed (Scrollable only inside this viewport area) */}
           <div
             ref={chatContainerRef}
-            className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-bone-50/20"
+            className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 md:p-5 space-y-3.5 bg-bone-50/30 scroll-smooth"
           >
             {messages.length === 0 && !isLoading ? (
-              <div className="h-full flex flex-col items-center justify-center text-center py-6 px-2">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-sage-100 border border-sage-200 rounded-2xl flex items-center justify-center mb-3 text-forest-800 shadow-2xs">
-                  <Sprout className="w-7 h-7 sm:w-8 sm:h-8 text-sage-700" />
+              <div className="h-full flex flex-col items-center justify-center text-center py-4 px-2">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-sage-100 border border-sage-200 rounded-2xl flex items-center justify-center mb-2.5 text-forest-800 shadow-2xs">
+                  <Sprout className="w-6 h-6 sm:w-7 sm:h-7 text-sage-700" />
                 </div>
                 <h4 className="text-sm sm:text-base font-extrabold text-forest-900 mb-1">
                   Apa yang ingin Anda konsultasikan?
                 </h4>
-                <p className="text-xs text-sage-700 max-w-md mb-5 leading-relaxed">
+                <p className="text-xs text-sage-700 max-w-md mb-4 leading-relaxed">
                   Tanyakan rekomendasi seputar hara tanah, pemupukan presisi, diagnosa hama padi, atau analisis data sensor lahan.
                 </p>
 
@@ -389,9 +401,9 @@ function ChatbotContent() {
                     <button
                       key={idx}
                       onClick={() => handleSend(prompt)}
-                      className="p-3 rounded-xl bg-white border border-bone-300 hover:border-sage-500 hover:bg-sage-50/60 transition-all text-xs font-medium text-forest-800 text-left shadow-2xs flex items-center gap-2.5 group"
+                      className="p-2.5 sm:p-3 rounded-xl bg-white border border-bone-300 hover:border-sage-500 hover:bg-sage-50/60 transition-all text-xs font-medium text-forest-800 text-left shadow-2xs flex items-center gap-2 group active:scale-[0.99]"
                     >
-                      <HelpCircle className="w-4 h-4 text-sage-500 flex-shrink-0 group-hover:text-forest-800" />
+                      <HelpCircle className="w-3.5 h-3.5 text-sage-500 flex-shrink-0 group-hover:text-forest-800" />
                       <span className="truncate">{prompt}</span>
                     </button>
                   ))}
@@ -406,35 +418,35 @@ function ChatbotContent() {
                   }`}
                 >
                   <div
-                    className={`flex gap-2.5 sm:gap-3 max-w-[92%] sm:max-w-[80%] ${
+                    className={`flex gap-2 sm:gap-2.5 max-w-[92%] sm:max-w-[82%] ${
                       msg.role === "user" ? "flex-row-reverse" : ""
                     }`}
                   >
                     {/* Avatar */}
                     <div
-                      className={`flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center text-xs font-bold shadow-2xs ${
+                      className={`flex-shrink-0 w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold shadow-2xs ${
                         msg.role === "bot"
                           ? "bg-forest-900 text-wheat-300 border border-forest-800"
                           : "bg-sage-600 text-white"
                       }`}
                     >
                       {msg.role === "bot" ? (
-                        <Sprout className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <Sprout className="w-3.5 h-3.5" />
                       ) : (
-                        <UserIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <UserIcon className="w-3.5 h-3.5" />
                       )}
                     </div>
 
                     {/* Message Card */}
                     <div
-                      className={`relative px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-soft overflow-x-auto ${
+                      className={`relative px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-soft overflow-x-auto ${
                         msg.role === "user"
                           ? "bg-forest-900 text-bone-50 rounded-tr-xs"
                           : "bg-white border border-bone-300 text-forest-900 rounded-tl-xs"
                       }`}
                     >
                       {/* Sender Header */}
-                      <div className="flex items-center justify-between gap-4 mb-1.5 opacity-80 text-[11px] font-semibold">
+                      <div className="flex items-center justify-between gap-4 mb-1 opacity-80 text-[10px] sm:text-[11px] font-semibold">
                         <span className={msg.role === "user" ? "text-wheat-300" : "text-sage-700"}>
                           {msg.role === "bot" ? "KawalTani AI" : "Anda"}
                         </span>
@@ -454,7 +466,7 @@ function ChatbotContent() {
                             remarkPlugins={[remarkGfm]}
                             components={{
                               table: ({ node, ...props }) => (
-                                <div className="my-2.5 overflow-x-auto rounded-xl border border-bone-300 shadow-2xs">
+                                <div className="my-2 overflow-x-auto rounded-lg border border-bone-300 shadow-2xs">
                                   <table
                                     className="w-full text-left text-xs border-collapse"
                                     {...props}
@@ -463,19 +475,19 @@ function ChatbotContent() {
                               ),
                               thead: ({ node, ...props }) => (
                                 <thead
-                                  className="bg-forest-900 text-bone-50 text-[11px] font-bold uppercase tracking-wider"
+                                  className="bg-forest-900 text-bone-50 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider"
                                   {...props}
                                 />
                               ),
                               th: ({ node, ...props }) => (
                                 <th
-                                  className="px-3.5 py-2.5 border-b border-forest-800"
+                                  className="px-3 py-2 border-b border-forest-800"
                                   {...props}
                                 />
                               ),
                               td: ({ node, ...props }) => (
                                 <td
-                                  className="px-3.5 py-2.5 border-b border-bone-200 text-forest-800 bg-white"
+                                  className="px-3 py-2 border-b border-bone-200 text-forest-800 bg-white"
                                   {...props}
                                 />
                               ),
@@ -487,21 +499,21 @@ function ChatbotContent() {
                               ),
                               ul: ({ node, ...props }) => (
                                 <ul
-                                  className="list-disc pl-4 space-y-1 my-1.5 text-forest-850"
+                                  className="list-disc pl-4 space-y-1 my-1 text-forest-850"
                                   {...props}
                                 />
                               ),
                               ol: ({ node, ...props }) => (
                                 <ol
-                                  className="list-decimal pl-4 space-y-1 my-1.5 text-forest-850"
+                                  className="list-decimal pl-4 space-y-1 my-1 text-forest-850"
                                   {...props}
                                 />
                               ),
                               p: ({ node, ...props }) => (
-                                <p className="my-1.5 leading-relaxed" {...props} />
+                                <p className="my-1 leading-relaxed" {...props} />
                               ),
                               hr: ({ node, ...props }) => (
-                                <hr className="my-2.5 border-bone-300" {...props} />
+                                <hr className="my-2 border-bone-300" {...props} />
                               ),
                             }}
                           >
@@ -509,10 +521,10 @@ function ChatbotContent() {
                           </ReactMarkdown>
 
                           {/* Action Toolbar */}
-                          <div className="pt-2 mt-2 border-t border-bone-200 flex items-center justify-end">
+                          <div className="pt-1.5 mt-1.5 border-t border-bone-200 flex items-center justify-end">
                             <button
                               onClick={() => handleCopy(msg.text, idx)}
-                              className="px-2 py-1 rounded-lg text-[11px] font-medium text-sage-700 hover:text-forest-900 hover:bg-bone-100 transition-colors flex items-center gap-1"
+                              className="px-2 py-0.5 rounded text-[10px] font-medium text-sage-700 hover:text-forest-900 hover:bg-bone-100 transition-colors flex items-center gap-1"
                               title="Salin jawaban"
                             >
                               {copiedIdx === idx ? (
@@ -539,19 +551,19 @@ function ChatbotContent() {
             {/* Loading Indicator */}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="flex gap-2.5 max-w-[85%]">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-forest-900 text-wheat-300 flex items-center justify-center shadow-2xs">
-                    <Sprout className="w-4 h-4" />
+                <div className="flex gap-2 max-w-[85%]">
+                  <div className="flex-shrink-0 w-7 h-7 rounded-xl bg-forest-900 text-wheat-300 flex items-center justify-center shadow-2xs">
+                    <Sprout className="w-3.5 h-3.5" />
                   </div>
-                  <div className="px-4 py-3 rounded-2xl bg-white border border-bone-300 shadow-soft">
-                    <div className="flex items-center gap-2.5">
+                  <div className="px-3.5 py-2.5 rounded-2xl bg-white border border-bone-300 shadow-soft">
+                    <div className="flex items-center gap-2">
                       <div className="flex gap-1">
-                        <span className="w-2 h-2 bg-sage-600 rounded-full animate-bounce"></span>
-                        <span className="w-2 h-2 bg-sage-600 rounded-full animate-bounce [animation-delay:0.15s]"></span>
-                        <span className="w-2 h-2 bg-sage-600 rounded-full animate-bounce [animation-delay:0.3s]"></span>
+                        <span className="w-1.5 h-1.5 bg-sage-600 rounded-full animate-bounce"></span>
+                        <span className="w-1.5 h-1.5 bg-sage-600 rounded-full animate-bounce [animation-delay:0.15s]"></span>
+                        <span className="w-1.5 h-1.5 bg-sage-600 rounded-full animate-bounce [animation-delay:0.3s]"></span>
                       </div>
                       <span className="text-xs text-sage-700 font-medium">
-                        Menganalisis data lahan &amp; menyusun rekomendasi...
+                        Menyusun rekomendasi agronomis...
                       </span>
                     </div>
                   </div>
@@ -560,9 +572,9 @@ function ChatbotContent() {
             )}
           </div>
 
-          {/* Input Bar */}
-          <div className="p-3 sm:p-4 border-t border-bone-200 bg-white">
-            <div className="flex items-center gap-2 border border-bone-300 rounded-2xl px-3.5 py-2 focus-within:border-sage-500 focus-within:ring-2 focus-within:ring-sage-500/20 bg-bone-50/40 transition-all shadow-2xs">
+          {/* Always-Visible Fixed Bottom Input Bar */}
+          <div className="p-2.5 sm:p-3 border-t border-bone-200 bg-white flex-shrink-0">
+            <div className="flex items-center gap-2 border border-bone-300 rounded-xl px-3 py-1.5 focus-within:border-sage-500 focus-within:ring-2 focus-within:ring-sage-500/20 bg-bone-50/50 transition-all shadow-2xs">
               <input
                 type="text"
                 value={input}
@@ -570,26 +582,26 @@ function ChatbotContent() {
                 onKeyDown={(e) =>
                   e.key === "Enter" && !isLoading && handleSend()
                 }
-                placeholder="Ketik pertanyaan seputar tanaman, hama, atau kondisi tanah..."
+                placeholder="Tanyakan seputar tanaman, hama, hara, atau analisis sensor..."
                 className="flex-1 bg-transparent outline-none text-xs sm:text-sm text-forest-900 placeholder:text-sage-600/70"
                 disabled={isLoading}
               />
               <button
                 onClick={() => handleSend()}
                 disabled={!input.trim() || isLoading}
-                className="p-2.5 bg-forest-900 hover:bg-forest-800 text-wheat-300 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-2xs flex-shrink-0"
+                className="p-2 bg-forest-900 hover:bg-forest-800 text-wheat-300 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-2xs flex-shrink-0 active:scale-95"
                 title="Kirim Pertanyaan"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <div className="flex items-center justify-between mt-2 px-1 text-[11px] text-sage-700">
-              <div className="flex items-center gap-1.5">
-                <AlertCircle className="w-3.5 h-3.5 text-wheat-600 flex-shrink-0" />
-                <span className="truncate">Konsultasi AI adalah rekomendasi agronomik pendukung keputusan petani.</span>
+            <div className="flex items-center justify-between mt-1.5 px-1 text-[10px] text-sage-600">
+              <div className="flex items-center gap-1 min-w-0">
+                <AlertCircle className="w-3 h-3 text-wheat-600 flex-shrink-0" />
+                <span className="truncate">Rekomendasi AI pendukung keputusan agronomis petani.</span>
               </div>
-              <span className="hidden sm:inline flex-shrink-0 font-medium">{messages.length} pesan</span>
+              <span className="hidden sm:inline flex-shrink-0 font-semibold">{messages.length} pesan</span>
             </div>
           </div>
         </div>
@@ -612,5 +624,3 @@ export default function ChatbotPage() {
     </Suspense>
   );
 }
-
-
