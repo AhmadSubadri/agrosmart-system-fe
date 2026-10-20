@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
 
     let aiResult: any = null;
 
-    // Call Groq Vision Model (Qwen 3.6 27B Vision with Multimodal Capability)
+    // Call Groq Vision Model (Qwen 3.8 27B Vision with Multimodal Capability)
     try {
       const response = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "qwen/qwen3.6-27b",
+          model: "qwen/qwen3.8-27b",
           messages: [
             {
               role: "system",

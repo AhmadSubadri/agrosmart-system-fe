@@ -132,24 +132,34 @@ export default function DeteksiFasePage() {
         body: formData,
       });
 
-      // 2. Fallback to external microservice if internal route not ready
-      if (!res.ok) {
-        res = await fetch(`${API_DETEKSI_FASE}/deteksi-fase/`, {
-          method: "POST",
-          body: formData,
-        });
+      // 2. Fallback to external microservice only if internal route is 404 (not found) and fallback URL is configured
+      if (res.status === 404 && API_DETEKSI_FASE) {
+        try {
+          res = await fetch(`${API_DETEKSI_FASE}/deteksi-fase/`, {
+            method: "POST",
+            body: formData,
+          });
+        } catch {
+          // Keep original res if fallback also fails
+        }
       }
 
       const data = await res.json();
-      if (data.error) {
-        setResult({ error: data.error });
+      if (!res.ok || data.error) {
+        setResult({
+          error:
+            data.error ||
+            "Gagal menganalisis citra fase padi. Pastikan gambar jelas dan format JPG/PNG valid.",
+        });
       } else {
         setResult(data);
         if (data.fase) setActiveFase(data.fase);
       }
-    } catch {
+    } catch (err: any) {
       setResult({
-        error: "Gagal memproses analisis citra fase padi. Pastikan format gambar JPG/PNG valid.",
+        error:
+          err?.message ||
+          "Gagal memproses analisis citra fase padi. Pastikan koneksi stabil dan gambar JPG/PNG valid.",
       });
     } finally {
       setLoading(false);
