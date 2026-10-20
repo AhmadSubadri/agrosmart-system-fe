@@ -48,30 +48,32 @@ const SensorRealtime: React.FC<SensorRealtimeProps> = ({
   statusTDS,
 }) => {
   return (
-    <div className="bg-bone-50 border border-bone-300/80 rounded-2xl p-4 sm:p-6 shadow-soft my-4">
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-bone-200">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-forest-800 text-wheat-300 flex items-center justify-center font-bold text-xs">
+    <div className="bg-bone-50 border border-bone-300/80 rounded-xl p-3 sm:p-3.5 shadow-2xs">
+      {/* Node Header */}
+      <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-bone-200">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-forest-800 text-wheat-300 flex items-center justify-center font-bold text-xs">
             A{sensor}
           </div>
           <div>
-            <h3 className="font-bold text-lg text-forest-900 leading-tight">
+            <h3 className="font-bold text-sm sm:text-base text-forest-900 leading-tight">
               Plot Lahan - Area {sensor}
             </h3>
-            <p className="text-xs text-sage-700/80">Sensor Telemetri Lengkap (8 Parameter)</p>
+            <p className="text-[11px] text-sage-600">8 Parameter Fisik & Kimia Tanah</p>
           </div>
         </div>
-        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-sage-100 border border-sage-200 text-forest-800">
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-sage-100 border border-sage-200 text-forest-800">
           Node Aktif
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <IndikatorSuhu suhu={suhu} status={statusSuhu} />
+      {/* 8 Sensor Indicators Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2.5">
         <IndikatorPh ph={ph} status={statusPh} />
         <IndikatorNitrogen nitrogen={nitrogen} status={statusNitrogen} />
         <IndikatorFosfor fosfor={fosfor} status={statusFosfor} />
         <IndikatorKalium kalium={kalium} status={statusKalium} />
+        <IndikatorSuhu suhu={suhu} status={statusSuhu} />
         <IndikatorKelembapan humid={humid} status={statusHumid} />
         <IndikatorEc ec={ec} status={statusEc} />
         <IndikatorTds tds={tds} status={statusTDS} />
