@@ -166,6 +166,12 @@ export default function DeteksiFasePage() {
       } else {
         setResult(data);
         if (data.fase) setActiveFase(data.fase);
+        try {
+          localStorage.setItem(
+            "last_fase_detection",
+            JSON.stringify({ ...data, img: preview })
+          );
+        } catch {}
       }
     } catch (err: any) {
       setResult({
