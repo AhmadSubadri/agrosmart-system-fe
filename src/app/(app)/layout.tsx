@@ -2,6 +2,7 @@
 
 import Header from "../Components/header";
 import Sidebar from "../Components/sidebar";
+import Footer from "../Components/footer";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import AuthGuard from "../Components/AuthGuard";
@@ -69,16 +70,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {/* Main Content Area */}
           <div
             className={`flex-grow flex flex-col min-w-0 transition-all duration-300 ${
-              sidebarOpen ? "lg:ml-64" : "lg:ml-20"
+              sidebarOpen ? "lg:ml-64" : "lg:ml-[72px]"
             }`}
           >
             <Header
               title={activePage}
               onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)}
             />
-            <main className="flex-1 p-4 md:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+            <main className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 max-w-7xl w-full mx-auto">
               {children}
             </main>
+            <Footer />
           </div>
         </div>
       )}

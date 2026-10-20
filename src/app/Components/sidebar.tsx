@@ -15,6 +15,7 @@ import {
   X,
   LogOut,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -27,6 +28,15 @@ interface SidebarProps {
   setMobileOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   activePage: string;
   setActivePage: React.Dispatch<React.SetStateAction<string>>;
+}
+
+interface MenuItem {
+  title: string;
+  path: string;
+  icon: React.ReactNode;
+  description: string;
+  category?: string;
+  badge?: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -66,56 +76,59 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  const Menus = [
+  const Menus: MenuItem[] = [
     {
       title: "Dashboard",
       path: "/dashboard",
-      icon: <Home className="w-5 h-5" />,
-      description: "Overview sistem",
+      icon: <Home className="w-4 h-4" />,
+      description: "Overview sistem & KPI",
+      category: "Monitoring Lahan",
     },
     {
       title: "Realtime",
       path: "/realtime",
-      icon: <Activity className="w-5 h-5" />,
-      description: "Data telemetri",
+      icon: <Activity className="w-4 h-4" />,
+      description: "Live sensor stream",
     },
     {
       title: "Riwayat",
       path: "/riwayat",
-      icon: <Clock className="w-5 h-5" />,
-      description: "Histori & grafik",
+      icon: <Clock className="w-4 h-4" />,
+      description: "Histori & grafik waktu",
     },
     {
       title: "Lahan",
       path: "/lahan",
-      icon: <MapPin className="w-5 h-5" />,
-      description: "Manajemen area lahan",
+      icon: <MapPin className="w-4 h-4" />,
+      description: "Area & digital twin",
       category: "Manajemen Agronomi",
     },
     {
       title: "Tanaman",
       path: "/plant",
-      icon: <Sprout className="w-5 h-5" />,
-      description: "Katalog & komoditas",
+      icon: <Sprout className="w-4 h-4" />,
+      description: "Varietas & siklus panen",
     },
     {
       title: "Sensor",
       path: "/sensor",
-      icon: <Radio className="w-5 h-5" />,
-      description: "Node IoT & status",
+      icon: <Radio className="w-4 h-4" />,
+      description: "Status node IoT telemetri",
     },
     {
-      title: "Chatbot",
+      title: "Chatbot Tani",
       path: "/chatbot",
-      icon: <MessageSquare className="w-5 h-5" />,
-      description: "Konsultasi cerdas tani",
-      category: "Fitur Cerdas AI",
+      icon: <MessageSquare className="w-4 h-4" />,
+      description: "Asisten agronomis cerdas",
+      category: "Kecerdasan Buatan",
+      badge: "AI",
     },
     {
       title: "Deteksi Fase Padi",
       path: "/deteksi-fase-padi",
-      icon: <Leaf className="w-5 h-5" />,
-      description: "Analisis citra tanaman",
+      icon: <Leaf className="w-4 h-4" />,
+      description: "Computer Vision kamera",
+      badge: "Vision",
     },
   ];
 
@@ -128,37 +141,46 @@ const Sidebar: React.FC<SidebarProps> = ({
     <aside
       className={`
         fixed top-0 bottom-0 left-0 z-50 flex flex-col
-        bg-forest-900 text-bone-100 border-r border-forest-700/80 shadow-2xl
-        transition-all duration-300 ease-in-out
-        ${/* Mobile classes */ ""}
+        bg-forest-900 text-bone-100 border-r border-forest-800 shadow-xl
+        transition-all duration-300 ease-in-out select-none
+        ${/* Mobile view */ ""}
         ${mobileOpen ? "translate-x-0 w-72" : "-translate-x-full"}
-        ${/* Desktop classes */ ""}
-        lg:translate-x-0 ${open ? "lg:w-64" : "lg:w-20"}
+        ${/* Desktop view */ ""}
+        lg:translate-x-0 ${open ? "lg:w-64" : "lg:w-[72px]"}
       `}
     >
-      {/* Header / Brand */}
-      <div className="h-18 px-4 py-4 border-b border-forest-800 flex items-center justify-between">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-10 h-10 rounded-xl bg-sage-500/20 border border-sage-400/30 flex items-center justify-center flex-shrink-0 text-sage-300">
-            <Sprout className="w-5 h-5 text-wheat-400" />
+      {/* Brand Logo Header */}
+      <div className="h-16 px-4 border-b border-forest-800/90 flex items-center justify-between flex-shrink-0">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-3 overflow-hidden group"
+          onClick={() => {
+            if (setMobileOpen) setMobileOpen(false);
+          }}
+        >
+          <div className="w-9 h-9 rounded-xl bg-forest-800 border border-forest-700/80 flex items-center justify-center flex-shrink-0 text-wheat-300 shadow-2xs group-hover:scale-105 transition-transform">
+            <Sprout className="w-4 h-4 text-wheat-300" />
           </div>
           {(open || mobileOpen) && (
             <div className="flex flex-col min-w-0">
-              <span className="font-bold text-base text-bone-50 tracking-tight flex items-center gap-1.5">
-                KawalTani <span className="text-[10px] px-1.5 py-0.5 rounded bg-sage-700/60 text-sage-200 uppercase font-semibold">Pro</span>
+              <span className="font-extrabold text-sm text-bone-50 tracking-tight flex items-center gap-1.5">
+                KawalTani
+                <span className="text-[9px] px-1.5 py-0.2 rounded bg-sage-800/80 text-wheat-300 font-bold border border-forest-700">
+                  v2.4
+                </span>
               </span>
-              <span className="text-xs text-sage-300/80 truncate">Smart Agriculture</span>
+              <span className="text-[10px] text-sage-400 truncate">Smart Agriculture</span>
             </div>
           )}
-        </div>
+        </Link>
 
         {/* Desktop Collapse Toggle */}
         <button
           onClick={() => setOpen(!open)}
-          className="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg text-sage-300 hover:text-white hover:bg-forest-800 transition-colors"
+          className="hidden lg:flex items-center justify-center w-6 h-6 rounded-lg text-sage-400 hover:text-white hover:bg-forest-800 transition-colors"
           title={open ? "Perkecil Menu" : "Perluas Menu"}
         >
-          {open ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+          {open ? <ChevronLeft className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
         </button>
 
         {/* Mobile Close Button */}
@@ -166,25 +188,26 @@ const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={() => setMobileOpen(false)}
             className="lg:hidden p-1.5 rounded-lg text-sage-300 hover:text-white hover:bg-forest-800"
+            aria-label="Tutup Menu"
           >
             <X className="w-5 h-5" />
           </button>
         )}
       </div>
 
-      {/* Navigation Links */}
-      <div className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
+      {/* Navigation Links Scrollable Area */}
+      <div className="flex-1 py-3 px-2.5 overflow-y-auto space-y-0.5 scrollbar-thin scrollbar-thumb-forest-800">
         {Menus.map((menu, index) => {
           const active = isCurrentPage(menu.path);
           return (
             <div key={index}>
               {menu.category && (open || mobileOpen) && (
-                <div className="px-3 pt-4 pb-1 text-[11px] font-semibold text-sage-400/70 tracking-wider uppercase">
+                <div className="px-3 pt-3.5 pb-1 text-[10px] font-bold text-sage-400/80 tracking-wider uppercase">
                   {menu.category}
                 </div>
               )}
               {menu.category && !open && !mobileOpen && (
-                <div className="my-2 border-t border-forest-800" />
+                <div className="my-2 border-t border-forest-800/80" />
               )}
 
               <Link
@@ -194,19 +217,19 @@ const Sidebar: React.FC<SidebarProps> = ({
                   if (setMobileOpen) setMobileOpen(false);
                 }}
                 className={`
-                  group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative
+                  group flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all duration-150 relative
                   ${
                     active
-                      ? "bg-sage-600/30 text-wheat-200 border border-sage-500/40 shadow-sm"
-                      : "text-bone-200/80 hover:bg-forest-800/80 hover:text-bone-50"
+                      ? "bg-forest-800 text-wheat-300 border border-forest-700 shadow-2xs"
+                      : "text-bone-200/80 hover:bg-forest-800/60 hover:text-bone-50"
                   }
-                  ${!open && !mobileOpen ? "justify-center px-0" : ""}
+                  ${!open && !mobileOpen ? "justify-center px-0 py-2.5" : ""}
                 `}
                 title={!open && !mobileOpen ? menu.title : undefined}
               >
-                {/* Active Indicator Bar */}
+                {/* Active Left Indicator */}
                 {active && (
-                  <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-wheat-400" />
+                  <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-wheat-400" />
                 )}
 
                 <div
@@ -218,11 +241,19 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </div>
 
                 {(open || mobileOpen) && (
-                  <div className="flex-1 min-w-0 flex flex-col">
-                    <span className="truncate leading-snug">{menu.title}</span>
-                    <span className="text-[11px] text-sage-400/70 truncate group-hover:text-sage-300/80 font-normal">
-                      {menu.description}
-                    </span>
+                  <div className="flex-1 min-w-0 flex items-center justify-between gap-1">
+                    <div className="flex flex-col min-w-0">
+                      <span className="truncate leading-tight">{menu.title}</span>
+                      <span className="text-[10px] text-sage-400/70 truncate group-hover:text-sage-300/80 font-normal">
+                        {menu.description}
+                      </span>
+                    </div>
+
+                    {menu.badge && (
+                      <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-wheat-400/15 border border-wheat-400/30 text-wheat-300 uppercase tracking-wider flex-shrink-0">
+                        {menu.badge}
+                      </span>
+                    )}
                   </div>
                 )}
               </Link>
@@ -231,8 +262,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         })}
       </div>
 
-      {/* User / Profile footer */}
-      <div className="p-3 border-t border-forest-800/80 bg-forest-950/40 space-y-1.5">
+      {/* User / Profile & Logout Footer */}
+      <div className="p-2.5 border-t border-forest-800/90 bg-forest-950/40 space-y-1 flex-shrink-0">
         <Link
           href="/profil"
           onClick={() => {
@@ -240,23 +271,23 @@ const Sidebar: React.FC<SidebarProps> = ({
             if (setMobileOpen) setMobileOpen(false);
           }}
           className={`
-            flex items-center gap-3 p-2 rounded-xl transition-colors
+            flex items-center gap-2.5 p-2 rounded-xl transition-all
             ${
               pathname.startsWith("/profil")
-                ? "bg-sage-600/30 text-wheat-200 border border-sage-500/40"
-                : "text-bone-200/80 hover:bg-forest-800/80 hover:text-bone-50"
+                ? "bg-forest-800 text-wheat-300 border border-forest-700"
+                : "text-bone-200/80 hover:bg-forest-800/60 hover:text-bone-50"
             }
-            ${!open && !mobileOpen ? "justify-center" : ""}
+            ${!open && !mobileOpen ? "justify-center p-2" : ""}
           `}
-          title={!open && !mobileOpen ? "Profil Akun" : undefined}
+          title={!open && !mobileOpen ? "Profil & Pengaturan" : undefined}
         >
-          <div className="w-7 h-7 rounded-lg bg-clay-500/30 border border-clay-400/40 flex items-center justify-center text-wheat-300 flex-shrink-0">
+          <div className="w-7 h-7 rounded-lg bg-clay-500/20 border border-clay-400/30 flex items-center justify-center text-wheat-300 flex-shrink-0">
             <User className="w-3.5 h-3.5" />
           </div>
           {(open || mobileOpen) && (
             <div className="flex-1 min-w-0 flex flex-col">
-              <span className="text-xs font-semibold text-bone-100 truncate">Pengaturan Akun</span>
-              <span className="text-[10px] text-sage-400/80 truncate">Kelola profil</span>
+              <span className="text-xs font-bold text-bone-100 truncate leading-tight">Pengaturan Akun</span>
+              <span className="text-[10px] text-sage-400 truncate">Kelola profil pengguna</span>
             </div>
           )}
         </Link>
@@ -266,17 +297,17 @@ const Sidebar: React.FC<SidebarProps> = ({
           onClick={handleLogout}
           disabled={isLoggingOut}
           className={`
-            w-full flex items-center gap-3 p-2 rounded-xl text-xs font-semibold transition-all
+            w-full flex items-center gap-2.5 p-2 rounded-xl text-xs font-semibold transition-all
             ${
               isLoggingOut
                 ? "bg-clay-800 text-wheat-300 cursor-wait opacity-90"
-                : "text-clay-300/90 hover:bg-clay-950/60 hover:text-clay-200 active:scale-95"
+                : "text-clay-300/80 hover:bg-clay-950/60 hover:text-clay-200 active:scale-[0.98]"
             }
-            ${!open && !mobileOpen ? "justify-center" : ""}
+            ${!open && !mobileOpen ? "justify-center p-2" : ""}
           `}
           title={!open && !mobileOpen ? "Keluar Sistem" : undefined}
         >
-          <div className="w-7 h-7 rounded-lg bg-clay-900/60 border border-clay-700/40 flex items-center justify-center flex-shrink-0 text-clay-400">
+          <div className="w-7 h-7 rounded-lg bg-clay-950/60 border border-clay-800 flex items-center justify-center flex-shrink-0 text-clay-400">
             {isLoggingOut ? (
               <RefreshCw className="w-3.5 h-3.5 animate-spin text-wheat-300" />
             ) : (
@@ -285,8 +316,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
           {(open || mobileOpen) && (
             <div className="flex-1 min-w-0 text-left">
-              <span className="truncate block">
-                {isLoggingOut ? "Memproses Keluar..." : "Keluar"}
+              <span className="truncate block text-xs">
+                {isLoggingOut ? "Memproses..." : "Keluar"}
               </span>
             </div>
           )}
@@ -297,5 +328,3 @@ const Sidebar: React.FC<SidebarProps> = ({
 };
 
 export default Sidebar;
-
-
