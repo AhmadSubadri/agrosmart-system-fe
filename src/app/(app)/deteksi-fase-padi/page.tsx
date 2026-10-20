@@ -144,7 +144,19 @@ export default function DeteksiFasePage() {
         }
       }
 
-      const data = await res.json();
+      let data: any = {};
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(
+          res.ok
+            ? "Format respons server tidak valid."
+            : `Server gagal merespons (${res.status}): ${text.slice(0, 100)}`
+        );
+      }
+
       if (!res.ok || data.error) {
         setResult({
           error:
