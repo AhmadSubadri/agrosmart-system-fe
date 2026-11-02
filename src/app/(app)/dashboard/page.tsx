@@ -204,9 +204,13 @@ export default function Dashboard() {
 
     try {
       // 1. Fetch Digital Twin Engine Endpoint
-      const dtUrl = siteId
-        ? `${API_URL}/api/digital-twin/dashboard?site_id=${siteId}`
-        : `${API_URL}/api/digital-twin/dashboard`;
+      const queryParams = new URLSearchParams();
+      if (siteId && siteId !== "undefined" && siteId !== "null") {
+        queryParams.append("site_id", siteId);
+      }
+      queryParams.append("season", selectedSeason);
+
+      const dtUrl = `${API_URL}/api/digital-twin/dashboard?${queryParams.toString()}`;
 
       const dtRes = await fetchJSON(dtUrl);
       if (dtRes && dtRes.status === "success") {
@@ -309,7 +313,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchData();
-  }, [siteId]);
+  }, [siteId, selectedSeason]);
 
   // Realtime Polling
   useEffect(() => {

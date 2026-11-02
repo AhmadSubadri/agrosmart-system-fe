@@ -13,6 +13,7 @@ import {
   HelpCircle,
   ArrowRight,
   ShieldAlert,
+  Hand,
 } from "lucide-react";
 
 export interface PlotData {
@@ -75,15 +76,14 @@ export default function DigitalTwinFieldMap({ plots: propPlots, onSelectPlot }: 
     }
   };
 
-  // Panduan tindakan praktis untuk petani
   const getActionAdvice = (plot: PlotData) => {
     if (plot.status === "Berisiko") {
       return {
         badge: "Tindakan Mendesak",
         badgeColor: "bg-rose-100 text-rose-800 border-rose-300",
         kondisi: `Tanah kering (Lembap ${plot.moisture}%) & Masam (pH ${plot.ph})`,
-        tindakan: "Segera buka pintu saluran air ke petak ini selama 1-2 jam dan tabur kapur dolomit 15 kg untuk netralkan keasaman.",
-        manfaat: "Mencegah padi kerdil dan gagal membentuk anakan.",
+        tindakan: "Segera buka pintu saluran air ke petak ini selama 1-2 jam dan tabur kapur dolomit 15 kg untuk netralkan keasaman tanah.",
+        manfaat: "Mencegah padi kerdil dan gagal membentuk anakan produktif.",
       };
     }
     if (plot.status === "Perlu Perhatian") {
@@ -91,7 +91,7 @@ export default function DigitalTwinFieldMap({ plots: propPlots, onSelectPlot }: 
         badge: "Perlu Tindakan",
         badgeColor: "bg-amber-100 text-amber-800 border-amber-300",
         kondisi: `Kadar air mulai berkurang (Lembap ${plot.moisture}%)`,
-        tindakan: "Alirkan air secukupnya setinggi 3-5 cm (macak-macak) dan siapkan pemupukan susulan Urea 10 kg khusus petak ini.",
+        tindakan: "Alirkan air secukupnya setinggi 3 cm (macak-macak) dan siapkan pemupukan susulan Urea 10 kg khusus petak ini.",
         manfaat: "Petani hemat pupuk karena tidak perlu memupuk petak lain yang sudah subur.",
       };
     }
@@ -119,7 +119,7 @@ export default function DigitalTwinFieldMap({ plots: propPlots, onSelectPlot }: 
               Digital Twin Lahan Sawah
             </h3>
             <span className="text-[11px] text-slate-400 block">
-              Pantau kondisi setiap petak tanpa harus turun ke lumpur
+              Sentuh petak sawah untuk instruksi perawatan langsung
             </span>
           </div>
         </div>
@@ -142,10 +142,10 @@ export default function DigitalTwinFieldMap({ plots: propPlots, onSelectPlot }: 
       </div>
 
       {/* Main Map Canvas Area */}
-      <div className="relative min-h-[300px] sm:min-h-[350px] bg-slate-900 overflow-hidden flex items-center justify-center select-none group">
+      <div className="relative min-h-[290px] sm:min-h-[330px] bg-slate-900 overflow-hidden flex items-center justify-center select-none group">
         {/* Background Texture */}
         <div
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-300"
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-300 pointer-events-none"
           style={{
             backgroundImage: `url('/assets/img/sawah.jpg')`,
             transform: `scale(${zoomLevel})`,
@@ -165,24 +165,28 @@ export default function DigitalTwinFieldMap({ plots: propPlots, onSelectPlot }: 
           {/* Outer Boundary glow */}
           <div className="p-2.5 rounded-2xl bg-white/20 backdrop-blur-xs border-2 border-white/80 shadow-2xl">
             {/* Grid of 12 Sub-plots */}
-            <div className="grid grid-cols-4 gap-2 w-[340px] sm:w-[440px] md:w-[500px]">
+            <div className="grid grid-cols-4 gap-2 w-[330px] sm:w-[430px] md:w-[490px]">
               {plots.map((plot) => {
                 const isSelected = selectedPlot?.id === plot.id;
                 return (
                   <button
                     key={plot.id}
-                    onClick={() => handlePlotClick(plot)}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePlotClick(plot);
+                    }}
                     className={`
-                      relative aspect-[1.35] rounded-lg border transition-all duration-200 cursor-pointer flex flex-col justify-between p-2 text-left
+                      relative aspect-[1.35] rounded-lg border transition-all duration-200 cursor-pointer flex flex-col justify-between p-2 text-left pointer-events-auto touch-manipulation select-none
                       ${getStatusColor(plot.status)}
                       ${
                         isSelected
-                          ? "ring-4 ring-white ring-offset-2 ring-offset-emerald-900 shadow-2xl scale-[1.04] z-20"
-                          : "opacity-90 hover:opacity-100 hover:scale-[1.01]"
+                          ? "ring-4 ring-white ring-offset-2 ring-offset-emerald-900 shadow-2xl scale-[1.05] z-20"
+                          : "opacity-90 hover:opacity-100 hover:scale-[1.02]"
                       }
                     `}
                   >
-                    <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center justify-between w-full pointer-events-none">
                       <span className="text-[11px] font-black tracking-wider text-white drop-shadow-sm uppercase">
                         {plot.code}
                       </span>
@@ -197,7 +201,7 @@ export default function DigitalTwinFieldMap({ plots: propPlots, onSelectPlot }: 
                       />
                     </div>
 
-                    <div className="text-[9px] font-bold text-white/95 drop-shadow-xs">
+                    <div className="text-[9px] font-bold text-white/95 drop-shadow-xs pointer-events-none">
                       {plot.status === "Sehat"
                         ? "Subur"
                         : plot.status === "Berisiko"
@@ -282,22 +286,55 @@ export default function DigitalTwinFieldMap({ plots: propPlots, onSelectPlot }: 
           </button>
         </div>
 
-        {/* Quick hint bottom right */}
+        {/* Hint bottom right */}
         <div className="absolute right-4 bottom-4 z-20 bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5">
-          <span>Sentuh petak sawah untuk instruksi petani</span>
+          <Hand className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Klik petak pada peta atau tombol di bawah</span>
         </div>
       </div>
 
+      {/* QUICK PETAK SELECTOR ROW: Sangat mudah disentuh dengan jari oleh petani */}
+      <div className="px-4 py-2.5 bg-slate-100/90 border-t border-slate-200/80 flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+        <span className="text-[11px] font-bold text-slate-500 whitespace-nowrap mr-1 flex-shrink-0">
+          Pilih Petak:
+        </span>
+        {plots.map((plot) => {
+          const isSelected = selectedPlot?.id === plot.id;
+          return (
+            <button
+              key={plot.id}
+              onClick={() => handlePlotClick(plot)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 whitespace-nowrap active:scale-95 shadow-2xs ${
+                isSelected
+                  ? "bg-emerald-600 text-white ring-2 ring-emerald-700/50 shadow-sm"
+                  : "bg-white text-slate-700 hover:bg-slate-200 border border-slate-200"
+              }`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  plot.status === "Berisiko"
+                    ? "bg-rose-500"
+                    : plot.status === "Perlu Perhatian"
+                    ? "bg-amber-400"
+                    : "bg-emerald-500"
+                }`}
+              />
+              <span>{plot.code}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* FOOTER ACTION PANEL: Apa Yang Harus Dilakukan Petani di Petak Terpilih */}
-      <div className="p-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-start gap-3 min-w-0">
           <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-black text-sm ${
+            className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-black text-sm shadow-sm ${
               selectedPlot.status === "Berisiko"
-                ? "bg-rose-500 shadow-sm"
+                ? "bg-rose-600"
                 : selectedPlot.status === "Perlu Perhatian"
-                ? "bg-amber-500 shadow-sm"
-                : "bg-emerald-600 shadow-sm"
+                ? "bg-amber-500"
+                : "bg-emerald-600"
             }`}
           >
             {selectedPlot.code.replace("Petak ", "")}
@@ -314,10 +351,10 @@ export default function DigitalTwinFieldMap({ plots: propPlots, onSelectPlot }: 
                 {advice.badge}
               </span>
             </div>
-            <p className="text-xs font-semibold text-slate-700 mt-1 leading-relaxed">
+            <p className="text-xs font-bold text-slate-800 mt-1 leading-relaxed">
               👉 {advice.tindakan}
             </p>
-            <span className="text-[11px] text-emerald-700 font-medium block mt-0.5">
+            <span className="text-[11px] text-emerald-800 font-semibold block mt-0.5">
               💡 {advice.manfaat}
             </span>
           </div>
