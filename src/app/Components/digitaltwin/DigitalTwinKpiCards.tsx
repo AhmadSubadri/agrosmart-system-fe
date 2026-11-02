@@ -64,13 +64,12 @@ export default function DigitalTwinKpiCards({ data }: Props) {
         <div className="flex items-center gap-3.5">
           <div className="w-13 h-13 rounded-xl overflow-hidden bg-emerald-50 border border-emerald-200/80 flex items-center justify-center relative flex-shrink-0">
             {/* Visual background representation of healthy green field */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/20 via-emerald-700/30 to-emerald-900/40" />
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/30 via-emerald-700/40 to-emerald-900/50" />
             <img
-              src="https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?w=150&auto=format&fit=crop&q=60"
+              src="/assets/img/sawah.jpg"
               alt="Lahan Tanah"
               className="w-full h-full object-cover"
               onError={(e) => {
-                // Fallback jika image offline
                 (e.target as HTMLElement).style.display = "none";
               }}
             />

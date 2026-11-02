@@ -65,8 +65,7 @@ export default function CropEnvironmentStatus({
     tinggi_tanaman_cm: 18,
     indeks_kesehatan: 0.92,
     status_kesehatan: "Sangat Baik",
-    image_url:
-      "https://images.unsplash.com/photo-1536657464919-892534f60d6e?w=500&auto=format&fit=crop&q=80",
+    image_url: "/assets/img/deteksi-fase/v1.jpg",
   };
 
   const tanah = propTanah ?? {
@@ -144,11 +143,15 @@ export default function CropEnvironmentStatus({
               <div className="aspect-[4/3] rounded-xl overflow-hidden border border-slate-200 bg-slate-100 relative shadow-2xs group">
                 <img
                   src={
-                    tanaman.image_url ||
-                    "https://images.unsplash.com/photo-1536657464919-892534f60d6e?w=500&auto=format&fit=crop&q=80"
+                    tanaman.image_url && !tanaman.image_url.endsWith(".svg")
+                      ? tanaman.image_url
+                      : "/assets/img/deteksi-fase/v1.jpg"
                   }
                   alt="Tanaman Padi"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/assets/img/deteksi-fase/v1.jpg";
+                  }}
                 />
                 <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-xs text-white text-[10px] px-2 py-0.5 rounded-md font-medium">
                   {tanaman.varietas}

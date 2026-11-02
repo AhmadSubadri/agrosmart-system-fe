@@ -60,7 +60,7 @@ export default function SpatialVariabilityCard({
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-300 opacity-60"
           style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?w=1000&auto=format&fit=crop&q=80')`,
+            backgroundImage: `url('/assets/img/sawah.jpg')`,
             transform: `scale(${zoomLevel})`,
           }}
         />

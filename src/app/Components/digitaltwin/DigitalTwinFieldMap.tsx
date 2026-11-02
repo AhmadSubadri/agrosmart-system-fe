@@ -127,12 +127,12 @@ export default function DigitalTwinFieldMap({ plots: propPlots, onSelectPlot }: 
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-300"
           style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?w=1200&auto=format&fit=crop&q=80')`,
+            backgroundImage: `url('/assets/img/sawah.jpg')`,
             transform: `scale(${zoomLevel})`,
           }}
         >
           {/* Subtle vignette/contrast overlay */}
-          <div className="absolute inset-0 bg-slate-900/40 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-slate-900/40" />
         </div>
 
         {/* 3D Perspective Isometric Plots Container */}
