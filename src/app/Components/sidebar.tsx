@@ -158,18 +158,18 @@ const Sidebar: React.FC<SidebarProps> = ({
             if (setMobileOpen) setMobileOpen(false);
           }}
         >
-          <div className="w-9 h-9 rounded-xl bg-forest-800 border border-forest-700/80 flex items-center justify-center flex-shrink-0 text-wheat-300 shadow-2xs group-hover:scale-105 transition-transform">
-            <Sprout className="w-4 h-4 text-wheat-300" />
+          <div className="w-9 h-9 rounded-xl bg-emerald-600 border border-emerald-500/80 flex items-center justify-center flex-shrink-0 text-white shadow-2xs group-hover:scale-105 transition-transform">
+            <Sprout className="w-5 h-5 text-white" />
           </div>
           {(open || mobileOpen) && (
             <div className="flex flex-col min-w-0">
-              <span className="font-extrabold text-sm text-bone-50 tracking-tight flex items-center gap-1.5">
-                KawalTani
-                <span className="text-[9px] px-1.5 py-0.2 rounded bg-sage-800/80 text-wheat-300 font-bold border border-forest-700">
-                  v2.4
+              <span className="font-extrabold text-base text-bone-50 tracking-tight flex items-center gap-1.5">
+                AgroTwin
+                <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-950/80 text-emerald-300 font-bold border border-emerald-700/60">
+                  AI Twin
                 </span>
               </span>
-              <span className="text-[10px] text-sage-400 truncate">Smart Agriculture</span>
+              <span className="text-[10px] text-sage-400 truncate">Smart Farming Better Harvest</span>
             </div>
           )}
         </Link>
@@ -218,10 +218,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                 }}
                 className={`
                   group flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all duration-150 relative
-                  ${
-                    active
-                      ? "bg-forest-800 text-wheat-300 border border-forest-700 shadow-2xs"
-                      : "text-bone-200/80 hover:bg-forest-800/60 hover:text-bone-50"
+                  ${active
+                    ? "bg-forest-800 text-wheat-300 border border-forest-700 shadow-2xs"
+                    : "text-bone-200/80 hover:bg-forest-800/60 hover:text-bone-50"
                   }
                   ${!open && !mobileOpen ? "justify-center px-0 py-2.5" : ""}
                 `}
@@ -233,9 +232,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                 )}
 
                 <div
-                  className={`flex-shrink-0 transition-colors ${
-                    active ? "text-wheat-300" : "text-sage-400 group-hover:text-sage-200"
-                  }`}
+                  className={`flex-shrink-0 transition-colors ${active ? "text-wheat-300" : "text-sage-400 group-hover:text-sage-200"
+                    }`}
                 >
                   {menu.icon}
                 </div>
@@ -263,7 +261,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* User / Profile & Logout Footer */}
-      <div className="p-2.5 border-t border-forest-800/90 bg-forest-950/40 space-y-1 flex-shrink-0">
+      <div className="p-2.5 border-t border-forest-800/90 bg-forest-950/60 space-y-2 flex-shrink-0">
         <Link
           href="/profil"
           onClick={() => {
@@ -271,23 +269,18 @@ const Sidebar: React.FC<SidebarProps> = ({
             if (setMobileOpen) setMobileOpen(false);
           }}
           className={`
-            flex items-center gap-2.5 p-2 rounded-xl transition-all
-            ${
-              pathname.startsWith("/profil")
-                ? "bg-forest-800 text-wheat-300 border border-forest-700"
-                : "text-bone-200/80 hover:bg-forest-800/60 hover:text-bone-50"
-            }
+            flex items-center gap-2.5 p-2 rounded-xl transition-all bg-forest-800/70 border border-forest-700/60 hover:bg-forest-800
             ${!open && !mobileOpen ? "justify-center p-2" : ""}
           `}
-          title={!open && !mobileOpen ? "Profil & Pengaturan" : undefined}
+          title={!open && !mobileOpen ? "Profil Pengguna" : undefined}
         >
-          <div className="w-7 h-7 rounded-lg bg-clay-500/20 border border-clay-400/30 flex items-center justify-center text-wheat-300 flex-shrink-0">
-            <User className="w-3.5 h-3.5" />
+          <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center overflow-hidden flex-shrink-0">
+            <User className="w-4 h-4 text-emerald-800" />
           </div>
           {(open || mobileOpen) && (
             <div className="flex-1 min-w-0 flex flex-col">
-              <span className="text-xs font-bold text-bone-100 truncate leading-tight">Pengaturan Akun</span>
-              <span className="text-[10px] text-sage-400 truncate">Kelola profil pengguna</span>
+              <span className="text-xs font-bold text-bone-50 truncate leading-tight">Halo, Pak Suyanto</span>
+              <span className="text-[10px] text-sage-400 truncate">Petani Mandiri</span>
             </div>
           )}
         </Link>
@@ -297,29 +290,20 @@ const Sidebar: React.FC<SidebarProps> = ({
           onClick={handleLogout}
           disabled={isLoggingOut}
           className={`
-            w-full flex items-center gap-2.5 p-2 rounded-xl text-xs font-semibold transition-all
-            ${
-              isLoggingOut
-                ? "bg-clay-800 text-wheat-300 cursor-wait opacity-90"
-                : "text-clay-300/80 hover:bg-clay-950/60 hover:text-clay-200 active:scale-[0.98]"
+            w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all
+            ${isLoggingOut
+              ? "bg-rose-950/50 text-rose-300 cursor-wait opacity-90"
+              : "text-rose-300/80 hover:bg-rose-950/40 hover:text-rose-200 active:scale-[0.98]"
             }
-            ${!open && !mobileOpen ? "justify-center p-2" : ""}
+            ${!open && !mobileOpen ? "justify-center px-0 py-2" : ""}
           `}
           title={!open && !mobileOpen ? "Keluar Sistem" : undefined}
         >
-          <div className="w-7 h-7 rounded-lg bg-clay-950/60 border border-clay-800 flex items-center justify-center flex-shrink-0 text-clay-400">
-            {isLoggingOut ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-wheat-300" />
-            ) : (
-              <LogOut className="w-3.5 h-3.5" />
-            )}
-          </div>
+          <LogOut className="w-4 h-4 flex-shrink-0" />
           {(open || mobileOpen) && (
-            <div className="flex-1 min-w-0 text-left">
-              <span className="truncate block text-xs">
-                {isLoggingOut ? "Memproses..." : "Keluar"}
-              </span>
-            </div>
+            <span className="truncate block text-xs">
+              {isLoggingOut ? "Memproses..." : "Keluar"}
+            </span>
           )}
         </button>
       </div>
