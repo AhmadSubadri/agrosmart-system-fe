@@ -478,6 +478,13 @@ export default function Dashboard() {
             <div className="h-full">
               <ActionableRecommendations
                 recommendations={digitalTwinData?.analisis_rekomendasi}
+                realtimeSensors={{
+                  suhu: digitalTwinData?.status_tanaman_lingkungan?.cuaca?.suhu ?? 26.9,
+                  kelembapan: digitalTwinData?.status_tanaman_lingkungan?.tanah?.kelembapan ?? 76.5,
+                  curah_hujan: digitalTwinData?.status_tanaman_lingkungan?.cuaca?.curah_hujan ?? 12,
+                  ph: digitalTwinData?.status_tanaman_lingkungan?.tanah?.ph ?? 6.5,
+                  hst: digitalTwinData?.kpi_summary?.fase_pertumbuhan?.hst ?? 22,
+                }}
               />
             </div>
 
